@@ -12,10 +12,15 @@ preloadStadium() // start fetching the city data in parallel with the scene code
 const Scene = lazy(loadScene)
 
 function ZoomButtons() {
-  const btn = 'glass grid size-10 cursor-pointer place-items-center text-xl leading-none transition-transform active:scale-90'
+  const btn =
+    'glass grid size-10 cursor-pointer place-items-center text-xl leading-none transition-transform active:scale-90'
   return (
     <div className="pointer-events-auto absolute right-3 bottom-[34vh] flex flex-col overflow-hidden rounded-xl md:right-4 md:bottom-4">
-      <button aria-label="Zoom in" onClick={() => zoomBy(1)} className={`${btn} rounded-none border-b-0`}>
+      <button
+        aria-label="Zoom in"
+        onClick={() => zoomBy(1)}
+        className={`${btn} rounded-none border-b-0`}
+      >
         +
       </button>
       <button aria-label="Zoom out" onClick={() => zoomBy(-1)} className={`${btn} rounded-none`}>
@@ -42,14 +47,21 @@ function SeatOverlay() {
         </div>
         <PanelToggle flip />
       </div>
-      <div className={`grid transition-[grid-template-rows] duration-300 ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+      <div
+        className={`grid transition-[grid-template-rows] duration-300 ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
+      >
         <div className="min-h-0 overflow-hidden">
           <div className="flex flex-col gap-3 pt-3">
             <BookingLinks />
-            <button onClick={backToBlock} className="flex w-full cursor-pointer items-center justify-center rounded-lg border border-accent bg-accent/10 px-3 py-2 text-sm font-semibold text-accent transition-colors hover:bg-accent hover:text-accent-ink">
+            <button
+              onClick={backToBlock}
+              className="flex w-full cursor-pointer items-center justify-center rounded-lg border border-accent bg-accent/10 px-3 py-2 text-sm font-semibold text-accent transition-colors hover:bg-accent hover:text-accent-ink"
+            >
               Choose different seat
             </button>
-            <div className="text-center text-xs text-mute">Drag to look around · Scroll or pinch to zoom</div>
+            <div className="text-center text-xs text-mute">
+              Drag to look around · Scroll or pinch to zoom
+            </div>
           </div>
         </div>
       </div>

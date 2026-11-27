@@ -31,7 +31,8 @@ function ribbonUV(line: Pt[], w: number, y: number, pos: number[], rs: number[],
   const n = line.length
   let acc = 0
   const cum = [0]
-  for (let i = 1; i < n; i++) cum.push((acc += Math.hypot(line[i][0] - line[i - 1][0], line[i][1] - line[i - 1][1])))
+  for (let i = 1; i < n; i++)
+    cum.push((acc += Math.hypot(line[i][0] - line[i - 1][0], line[i][1] - line[i - 1][1])))
   const side = line.map((_, i) => {
     const a = line[Math.max(0, i - 1)]
     const b = line[Math.min(n - 1, i + 1)]
@@ -46,8 +47,12 @@ function ribbonUV(line: Pt[], w: number, y: number, pos: number[], rs: number[],
     ru.push(sgn === 1 ? 0 : 1)
   }
   for (let i = 0; i < n - 1; i++) {
-    v(i, 1); v(i + 1, 1); v(i, -1)
-    v(i, -1); v(i + 1, 1); v(i + 1, -1)
+    v(i, 1)
+    v(i + 1, 1)
+    v(i, -1)
+    v(i, -1)
+    v(i + 1, 1)
+    v(i + 1, -1)
   }
 }
 
@@ -59,7 +64,8 @@ interface Chain {
 
 function toChain(pts: Pt[]): Chain {
   const cum = [0]
-  for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]))
+  for (let i = 1; i < pts.length; i++)
+    cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]))
   return { pts, cum, len: cum[cum.length - 1] }
 }
 
@@ -85,7 +91,8 @@ function walk(rails: Pt[][], dirZ: 1 | -1, used: Set<number>, rank = 0): Chain |
   if (seed < 0) return null
   used.add(seed)
   const first = rails[seed]
-  let route: Pt[] = (first[first.length - 1][1] - first[0][1]) * dirZ > 0 ? first.slice() : first.slice().reverse()
+  let route: Pt[] =
+    (first[first.length - 1][1] - first[0][1]) * dirZ > 0 ? first.slice() : first.slice().reverse()
 
   const extend = (r: Pt[]) => {
     for (let guard = 0; guard < 200; guard++) {
@@ -161,7 +168,12 @@ function sample(c: Chain, s: number) {
   const b = c.pts[lo + 1]
   const sl = c.cum[lo + 1] - c.cum[lo] || 1
   const f = (s - c.cum[lo]) / sl
-  return { x: a[0] + (b[0] - a[0]) * f, z: a[1] + (b[1] - a[1]) * f, hx: (b[0] - a[0]) / sl, hz: (b[1] - a[1]) / sl }
+  return {
+    x: a[0] + (b[0] - a[0]) * f,
+    z: a[1] + (b[1] - a[1]) * f,
+    hx: (b[0] - a[0]) / sl,
+    hz: (b[1] - a[1]) / sl,
+  }
 }
 
 // ---------- the two tracks beside the stadium ----------
@@ -183,7 +195,8 @@ function resample(pts: Pt[], step: number): Pt[] {
     const dx = pts[i][0] - ax
     const dz = pts[i][1] - az
     const len = Math.hypot(dx, dz)
-    for (let d = step - carry; d <= len; d += step) out.push([ax + (dx * d) / len, az + (dz * d) / len])
+    for (let d = step - carry; d <= len; d += step)
+      out.push([ax + (dx * d) / len, az + (dz * d) / len])
     carry = (carry + len) % step
   }
   return out
@@ -202,7 +215,15 @@ export function makeTracks(rails: Pt[][]): Tracks | null {
     const r = Math.hypot(x, z) || 1
     return (r < MIN_R ? [(x * MIN_R) / r, (z * MIN_R) / r] : [x, z]) as Pt
   })
-  for (let pass = 0; pass < 40; pass++) base = base.map((p, i) => (i === 0 || i === base.length - 1 ? p : [(base[i - 1][0] + 2 * p[0] + base[i + 1][0]) / 4, (base[i - 1][1] + 2 * p[1] + base[i + 1][1]) / 4] as Pt))
+  for (let pass = 0; pass < 40; pass++)
+    base = base.map((p, i) =>
+      i === 0 || i === base.length - 1
+        ? p
+        : ([
+            (base[i - 1][0] + 2 * p[0] + base[i + 1][0]) / 4,
+            (base[i - 1][1] + 2 * p[1] + base[i + 1][1]) / 4,
+          ] as Pt),
+    )
   const off = (sgn: number) =>
     base.map((p, i) => {
       const a = base[Math.max(0, i - 1)]
@@ -214,7 +235,11 @@ export function makeTracks(rails: Pt[][]): Tracks | null {
       return [p[0] + (dz / l) * GAUGE_GAP * sgn, p[1] - (dx / l) * GAUGE_GAP * sgn] as Pt
     })
   const south = chain.pts[chain.pts.length - 1][1] >= chain.pts[0][1] ? off(1) : off(1).reverse()
-  const north = (chain.pts[chain.pts.length - 1][1] >= chain.pts[0][1] ? off(-1) : off(-1).reverse()).slice().reverse()
+  const north = (
+    chain.pts[chain.pts.length - 1][1] >= chain.pts[0][1] ? off(-1) : off(-1).reverse()
+  )
+    .slice()
+    .reverse()
   return { south, north, base }
 }
 
@@ -225,7 +250,13 @@ const COUPLE = 1.0
 function box(w: number, h: number, l: number, y: number, z: number, c: string) {
   const g = new BoxGeometry(w, h, l).translate(0, y, z).toNonIndexed()
   const col = new Color(c)
-  g.setAttribute('color', new Float32BufferAttribute(new Array(g.attributes.position.count).fill(0).flatMap(() => [col.r, col.g, col.b]), 3))
+  g.setAttribute(
+    'color',
+    new Float32BufferAttribute(
+      new Array(g.attributes.position.count).fill(0).flatMap(() => [col.r, col.g, col.b]),
+      3,
+    ),
+  )
   return g
 }
 // bold livery so the train reads clearly from the overview: white body, pink skirt, light-pink band, light roof
@@ -258,14 +289,19 @@ export function Railway({ tracks }: { tracks: Tracks | null }) {
     if (tracks) {
       for (const r of [tracks.south, tracks.north]) {
         ribbonUV(r, BED_W, 0.1, pos, rs, ru)
-        for (let i = 0; i < r.length - 1; i++) wire.push(r[i][0], 5.7, r[i][1], r[i + 1][0], 5.7, r[i + 1][1])
+        for (let i = 0; i < r.length - 1; i++)
+          wire.push(r[i][0], 5.7, r[i][1], r[i + 1][0], 5.7, r[i + 1][1])
       }
       // overhead-line masts between the two tracks, every ~48 m
       let acc = 20
       const b = tracks.base
       for (let i = 0; i < b.length - 1; i++) {
         const len = Math.hypot(b[i + 1][0] - b[i][0], b[i + 1][1] - b[i][1])
-        for (; acc < len; acc += 48) pol.push(b[i][0] + ((b[i + 1][0] - b[i][0]) * acc) / len, b[i][1] + ((b[i + 1][1] - b[i][1]) * acc) / len)
+        for (; acc < len; acc += 48)
+          pol.push(
+            b[i][0] + ((b[i + 1][0] - b[i][0]) * acc) / len,
+            b[i][1] + ((b[i + 1][1] - b[i][1]) * acc) / len,
+          )
         acc -= len
       }
     }
@@ -273,17 +309,36 @@ export function Railway({ tracks }: { tracks: Tracks | null }) {
     bed.setAttribute('position', new Float32BufferAttribute(pos, 3))
     bed.setAttribute('rs', new Float32BufferAttribute(rs, 1))
     bed.setAttribute('ru', new Float32BufferAttribute(ru, 1))
-    bed.setAttribute('normal', new Float32BufferAttribute(pos.map((_, i) => (i % 3 === 1 ? 1 : 0)), 3))
+    bed.setAttribute(
+      'normal',
+      new Float32BufferAttribute(
+        pos.map((_, i) => (i % 3 === 1 ? 1 : 0)),
+        3,
+      ),
+    )
     const wires = new BufferGeometry()
     wires.setAttribute('position', new Float32BufferAttribute(wire, 3))
-    return { bed, wires, poles: pol, routes: tracks ? [toChain(tracks.south), toChain(tracks.north)] : [] }
+    return {
+      bed,
+      wires,
+      poles: pol,
+      routes: tracks ? [toChain(tracks.south), toChain(tracks.north)] : [],
+    }
   }, [tracks])
 
   const mats = useMemo(() => {
-    const bedMat = new MeshStandardMaterial({ color: '#a39e93', roughness: 1, side: DoubleSide, depthWrite: false })
+    const bedMat = new MeshStandardMaterial({
+      color: '#a39e93',
+      roughness: 1,
+      side: DoubleSide,
+      depthWrite: false,
+    })
     bedMat.onBeforeCompile = (sh) => {
       sh.vertexShader = sh.vertexShader
-        .replace('#include <common>', '#include <common>\nattribute float rs;\nattribute float ru;\nvarying float vS;\nvarying float vU;')
+        .replace(
+          '#include <common>',
+          '#include <common>\nattribute float rs;\nattribute float ru;\nvarying float vS;\nvarying float vU;',
+        )
         .replace('#include <begin_vertex>', '#include <begin_vertex>\nvS = rs; vU = ru;')
       sh.fragmentShader = sh.fragmentShader
         .replace('#include <common>', '#include <common>\nvarying float vS;\nvarying float vU;')
@@ -310,8 +365,24 @@ export function Railway({ tracks }: { tracks: Tracks | null }) {
       body: new MeshStandardMaterial({ vertexColors: true, roughness: 0.45, metalness: 0 }),
       win: new MeshBasicMaterial({ color: '#2e2832' }),
       lamp: new MeshBasicMaterial({ color: '#7d828c' }),
-      beam: new MeshBasicMaterial({ map: glowTexture, color: '#fff1c2', transparent: true, opacity: 0, blending: AdditiveBlending, depthWrite: false, side: DoubleSide }),
-      glow: new PointsMaterial({ map: glowTexture, size: 4, transparent: true, opacity: 0, blending: AdditiveBlending, depthWrite: false, color: '#fff3c8' }),
+      beam: new MeshBasicMaterial({
+        map: glowTexture,
+        color: '#fff1c2',
+        transparent: true,
+        opacity: 0,
+        blending: AdditiveBlending,
+        depthWrite: false,
+        side: DoubleSide,
+      }),
+      glow: new PointsMaterial({
+        map: glowTexture,
+        size: 4,
+        transparent: true,
+        opacity: 0,
+        blending: AdditiveBlending,
+        depthWrite: false,
+        color: '#fff3c8',
+      }),
     }
   }, [])
 
@@ -329,13 +400,23 @@ export function Railway({ tracks }: { tracks: Tracks | null }) {
   const lampGroups = useRef<(Group | null)[]>([])
   const lampGeo = useMemo(() => new SphereGeometry(0.28, 8, 6), [])
   // soft pool of light on the track ahead of the train (flat, fading out); visible at night only
-  const beamGeo = useMemo(() => new PlaneGeometry(9, 34).rotateX(-Math.PI / 2).translate(0, -1.7, 17), [])
+  const beamGeo = useMemo(
+    () => new PlaneGeometry(9, 34).rotateX(-Math.PI / 2).translate(0, -1.7, 17),
+    [],
+  )
   const dummy = useMemo(() => new Object3D(), [])
 
   // two trains, one per track, each re-launched after a short random pause
   const trains = useRef<Train[]>([])
   if (routes.length && trains.current.length !== routes.length * PER_TRACK) {
-    trains.current = routes.flatMap((chain, i) => Array.from({ length: PER_TRACK }, (_, k) => ({ chain, s: -1, speed: 0, wait: 1 + i * 4 + k * 5 })))
+    trains.current = routes.flatMap((chain, i) =>
+      Array.from({ length: PER_TRACK }, (_, k) => ({
+        chain,
+        s: -1,
+        speed: 0,
+        wait: 1 + i * 4 + k * 5,
+      })),
+    )
   }
   if (import.meta.env.DEV) (window as unknown as { __trains: unknown }).__trains = trains.current
 
@@ -366,7 +447,9 @@ export function Railway({ tracks }: { tracks: Tracks | null }) {
       if (t.s < 0) {
         t.wait -= dt
         // launch only when the tail of the previous train on this track is well clear of the start
-        const clear = trains.current.every((o) => o === t || o.chain !== t.chain || o.s < 0 || o.s > TRAIN_LEN + 120)
+        const clear = trains.current.every(
+          (o) => o === t || o.chain !== t.chain || o.s < 0 || o.s > TRAIN_LEN + 120,
+        )
         if (t.wait <= 0 && clear) {
           t.s = 0
           t.speed = 24 + Math.random() * 10
@@ -411,7 +494,17 @@ export function Railway({ tracks }: { tracks: Tracks | null }) {
         }
         const hx = dx / l
         const hz = dz / l
-        lp.set([h.x - hz * 0.9 + hx * 0.4, 2.1, h.z + hx * 0.9 + hz * 0.4, h.x + hz * 0.9 + hx * 0.4, 2.1, h.z - hx * 0.9 + hz * 0.4], slot * 6)
+        lp.set(
+          [
+            h.x - hz * 0.9 + hx * 0.4,
+            2.1,
+            h.z + hx * 0.9 + hz * 0.4,
+            h.x + hz * 0.9 + hx * 0.4,
+            2.1,
+            h.z - hx * 0.9 + hz * 0.4,
+          ],
+          slot * 6,
+        )
       } else {
         if (g) g.visible = false
         lp.set([0, -50, 0, 0, -50, 0], slot * 6)
@@ -428,15 +521,42 @@ export function Railway({ tracks }: { tracks: Tracks | null }) {
     <group>
       <mesh geometry={bed} material={mats.bed} renderOrder={5} />
       <lineSegments geometry={wires} material={mats.wire} frustumCulled={false} />
-      <instancedMesh ref={poleMesh} args={[poleGeo, mats.pole, Math.max(1, poles.length / 2)]} frustumCulled={false} raycast={() => {}} />
-      <instancedMesh ref={bodyMesh} args={[BODY, mats.body, total]} frustumCulled={false} raycast={() => {}} />
-      <instancedMesh ref={winMesh} args={[WINDOWS, mats.win, total]} frustumCulled={false} raycast={() => {}} />
-      <points ref={lightPts} geometry={lightGeo} material={mats.glow} frustumCulled={false} raycast={() => {}} />
+      <instancedMesh
+        ref={poleMesh}
+        args={[poleGeo, mats.pole, Math.max(1, poles.length / 2)]}
+        frustumCulled={false}
+        raycast={() => {}}
+      />
+      <instancedMesh
+        ref={bodyMesh}
+        args={[BODY, mats.body, total]}
+        frustumCulled={false}
+        raycast={() => {}}
+      />
+      <instancedMesh
+        ref={winMesh}
+        args={[WINDOWS, mats.win, total]}
+        frustumCulled={false}
+        raycast={() => {}}
+      />
+      <points
+        ref={lightPts}
+        geometry={lightGeo}
+        material={mats.glow}
+        frustumCulled={false}
+        raycast={() => {}}
+      />
       {Array.from({ length: routes.length * PER_TRACK }, (_, i) => (
         <group key={i} ref={(g) => void (lampGroups.current[i] = g)} visible={false}>
           <mesh geometry={lampGeo} material={mats.lamp} position={[-0.9, 1.9, 0.15]} />
           <mesh geometry={lampGeo} material={mats.lamp} position={[0.9, 1.9, 0.15]} />
-          <mesh geometry={beamGeo} material={mats.beam} position={[0, 1.9, 0.4]} frustumCulled={false} raycast={() => {}} />
+          <mesh
+            geometry={beamGeo}
+            material={mats.beam}
+            position={[0, 1.9, 0.4]}
+            frustumCulled={false}
+            raycast={() => {}}
+          />
         </group>
       ))}
     </group>

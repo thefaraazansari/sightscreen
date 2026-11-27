@@ -93,7 +93,11 @@ export const glowTexture = (() => {
 
 const TOWERS = [30, 90, 150, 210, 270, 330].map((deg) => {
   const t = (deg * Math.PI) / 180
-  return { x: (A + 42) * Math.cos(t), z: (B + 42) * Math.sin(t), rotY: Math.atan2(-Math.cos(t), -Math.sin(t)) }
+  return {
+    x: (A + 42) * Math.cos(t),
+    z: (B + 42) * Math.sin(t),
+    rotY: Math.atan2(-Math.cos(t), -Math.sin(t)),
+  }
 })
 const TOWER_H = 46
 
@@ -105,11 +109,12 @@ const lampPanelTex = (() => {
   g.fillStyle = '#222'
   g.fillRect(0, 0, 128, 64)
   g.fillStyle = '#fff'
-  for (let x = 0; x < 8; x++) for (let y = 0; y < 4; y++) {
-    g.beginPath()
-    g.arc(10 + x * 15.5, 10 + y * 15.5, 5, 0, 7)
-    g.fill()
-  }
+  for (let x = 0; x < 8; x++)
+    for (let y = 0; y < 4; y++) {
+      g.beginPath()
+      g.arc(10 + x * 15.5, 10 + y * 15.5, 5, 0, 7)
+      g.fill()
+    }
   return new CanvasTexture(c)
 })()
 
@@ -168,7 +173,16 @@ export function Environment() {
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[starPositions, 3]} />
         </bufferGeometry>
-        <pointsMaterial ref={starMat} size={2} sizeAttenuation={false} transparent opacity={live.stars} depthWrite={false} fog={false} color="#fff" />
+        <pointsMaterial
+          ref={starMat}
+          size={2}
+          sizeAttenuation={false}
+          transparent
+          opacity={live.stars}
+          depthWrite={false}
+          fog={false}
+          color="#fff"
+        />
       </points>
       <hemisphereLight ref={hemi} />
       <directionalLight ref={sun} />
@@ -186,7 +200,15 @@ function Floodlights() {
   const lights = useRef<(SpotLight | null)[]>([])
   const glows = useRef<(MeshBasicMaterial | null)[]>([])
   // only the face looking at the stadium carries the lamps; the back and sides are plain metal
-  const panel = useMemo(() => new MeshStandardMaterial({ color: '#cfd5e0', emissive: '#fff2cf', emissiveMap: lampPanelTex }), [])
+  const panel = useMemo(
+    () =>
+      new MeshStandardMaterial({
+        color: '#cfd5e0',
+        emissive: '#fff2cf',
+        emissiveMap: lampPanelTex,
+      }),
+    [],
+  )
   const casing = useMemo(() => new MeshStandardMaterial({ color: '#6f7683', roughness: 0.7 }), [])
   const faces = useMemo(() => [casing, casing, casing, casing, panel, casing], [casing, panel])
   useFrame(() => {
@@ -209,7 +231,15 @@ function Floodlights() {
           {/* glow is a one-sided plane facing the stadium, so nothing shines out of the back */}
           <mesh position={[0, TOWER_H + 2, 1.6]} visible={!hide}>
             <planeGeometry args={[38, 38]} />
-            <meshBasicMaterial ref={(m) => void (glows.current[i] = m)} map={glowTexture} blending={AdditiveBlending} transparent depthWrite={false} opacity={0} fog={false} />
+            <meshBasicMaterial
+              ref={(m) => void (glows.current[i] = m)}
+              map={glowTexture}
+              blending={AdditiveBlending}
+              transparent
+              depthWrite={false}
+              opacity={0}
+              fog={false}
+            />
           </mesh>
           <spotLight
             ref={(l) => void (lights.current[i] = l)}

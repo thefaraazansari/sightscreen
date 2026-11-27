@@ -15,7 +15,8 @@ function Overview() {
   return (
     <>
       <p className="text-sm leading-relaxed text-mute">
-        <b className="text-ink">{n(cap)}</b> seats across {STANDS.length} stands. Hover a stand to preview, click to open it.
+        <b className="text-ink">{n(cap)}</b> seats across {STANDS.length} stands. Hover a stand to
+        preview, click to open it.
       </p>
       <ul className="-mx-1 flex flex-col gap-1.5 overflow-y-auto px-1 py-1">
         {ORDER.map((id) => STANDS[id]).map((s) => (
@@ -72,12 +73,18 @@ export function SidePanel() {
         </h2>
       )}
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-xs font-semibold tracking-widest text-accent uppercase">Wankhede Stadium · Mumbai</h1>
+        <h1 className="text-xs font-semibold tracking-widest text-accent uppercase">
+          Wankhede Stadium · Mumbai
+        </h1>
         {mode === 'overview' && <PanelToggle flip />}
       </div>
-      <div className={`grid transition-[grid-template-rows] duration-300 ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+      <div
+        className={`grid transition-[grid-template-rows] duration-300 ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
+      >
         <div className="min-h-0 overflow-hidden">
-          <div className="flex flex-col gap-3.5 pt-3.5">{mode === 'stand' && active !== null ? <StandDetail /> : <Overview />}</div>
+          <div className="flex flex-col gap-3.5 pt-3.5">
+            {mode === 'stand' && active !== null ? <StandDetail /> : <Overview />}
+          </div>
         </div>
       </div>
     </aside>

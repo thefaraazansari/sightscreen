@@ -60,7 +60,15 @@ function Person({ at, look, kit, hat = kit, trousers = kit, role = 'fielder' }: 
     // striker: hands together on the handle, bat grounded in front of the toes
     striker: { lean: 0.3, thigh: 0.2, knee: 0.36, armL: 0.62, armR: 0.62, foreL: 0.1, foreR: 0.1 },
     // non-striker: upright, bat held loosely in one hand with its toe on the ground, other arm bent
-    nonstriker: { lean: 0.08, thigh: 0.05, knee: 0.1, armL: 0.12, armR: 0.35, foreL: 0.08, foreR: 0.6 },
+    nonstriker: {
+      lean: 0.08,
+      thigh: 0.05,
+      knee: 0.1,
+      armL: 0.12,
+      armR: 0.35,
+      foreL: 0.08,
+      foreR: 0.6,
+    },
     umpire: { lean: 0.03, thigh: 0.04, knee: 0.08, armL: 0.08, armR: 0.08, foreL: 0.1, foreR: 0.1 },
   }[role]
   // hip height so the feet stay on the ground whatever the leg bend
@@ -91,7 +99,12 @@ function Person({ at, look, kit, hat = kit, trousers = kit, role = 'fielder' }: 
               {/* helmet with a grille */}
               <mesh geometry={domeG} material={mat(hat)} position={[0, 0.82, 0.005]} scale={1.06} />
               {[0, 0.035, 0.07].map((dy) => (
-                <mesh key={dy} geometry={grilleG} material={mat('#c9ced6')} position={[0, 0.78 - dy, 0.125]} />
+                <mesh
+                  key={dy}
+                  geometry={grilleG}
+                  material={mat('#c9ced6')}
+                  position={[0, 0.78 - dy, 0.125]}
+                />
               ))}
             </>
           ) : role === 'umpire' ? (
@@ -101,11 +114,21 @@ function Person({ at, look, kit, hat = kit, trousers = kit, role = 'fielder' }: 
             </>
           ) : role === 'bowler' ? (
             // bare head with short dark hair
-            <mesh geometry={domeG} material={mat('#2a2118')} position={[0, 0.815, -0.005]} scale={[0.97, 0.95, 0.97]} />
+            <mesh
+              geometry={domeG}
+              material={mat('#2a2118')}
+              position={[0, 0.815, -0.005]}
+              scale={[0.97, 0.95, 0.97]}
+            />
           ) : (
             <>
               <mesh geometry={domeG} material={mat(hat)} position={[0, 0.82, 0]} />
-              <mesh geometry={peakG} material={mat(hat)} position={[0, 0.83, 0.13]} rotation-x={0.12} />
+              <mesh
+                geometry={peakG}
+                material={mat(hat)}
+                position={[0, 0.83, 0.13]}
+                rotation-x={0.12}
+              />
             </>
           )}
           {/* arms: short sleeves in the shirt colour, bare forearms, hands (gloves for batsmen) */}
@@ -113,13 +136,24 @@ function Person({ at, look, kit, hat = kit, trousers = kit, role = 'fielder' }: 
             const up = side === 1 ? pose.armR : pose.armL
             const fore = side === 1 ? pose.foreR : pose.foreL
             return (
-              <group key={side} position={[side * 0.235, 0.52, 0]} rotation-x={-up} rotation-z={role === 'striker' ? (side === 1 ? -0.5 : 0.17) : side * 0.1}>
+              <group
+                key={side}
+                position={[side * 0.235, 0.52, 0]}
+                rotation-x={-up}
+                rotation-z={role === 'striker' ? (side === 1 ? -0.5 : 0.17) : side * 0.1}
+              >
                 <mesh geometry={shoulderG} material={mat(kit)} />
                 <mesh geometry={upperArmG} material={mat(kit)} />
                 <group position={[0, -0.3, 0]} rotation-x={-fore}>
                   <mesh geometry={foreArmG} material={mat(isBat ? kit : SKIN)} />
-                  <mesh geometry={handG} material={mat(isBat ? kit : SKIN)} position={[0, -0.29, 0]} />
-                  {role === 'bowler' && side === 1 && <mesh geometry={ballG} material={mat('#f4f4f2')} position={[0, -0.36, 0.02]} />}
+                  <mesh
+                    geometry={handG}
+                    material={mat(isBat ? kit : SKIN)}
+                    position={[0, -0.29, 0]}
+                  />
+                  {role === 'bowler' && side === 1 && (
+                    <mesh geometry={ballG} material={mat('#f4f4f2')} position={[0, -0.36, 0.02]} />
+                  )}
                 </group>
               </group>
             )
@@ -128,7 +162,10 @@ function Person({ at, look, kit, hat = kit, trousers = kit, role = 'fielder' }: 
       </group>
       {isBat && (
         // pivot at the grip: blade hangs below it and its toe rests on the ground
-        <group position={role === 'striker' ? [-0.1, 0.8, 0.34] : [-0.27, 0.8, 0.07]} rotation-x={role === 'striker' ? 0.12 : 0.04}>
+        <group
+          position={role === 'striker' ? [-0.1, 0.8, 0.34] : [-0.27, 0.8, 0.07]}
+          rotation-x={role === 'striker' ? 0.12 : 0.04}
+        >
           <mesh geometry={batBladeG} material={mat('#e0bd7a')} position={[0, -0.45, 0]} />
           <mesh geometry={batHandleG} material={mat('#2a2a2a')} position={[0, 0, 0]} />
         </group>
@@ -163,8 +200,22 @@ export function Players() {
       <Person at={[0.3, 21.6]} look={striker} kit={YELLOW} role="keeper" />
       <Person at={striker} look={[0, -10]} kit={BLUE} role="striker" />
       <Person at={[-2.3, -9.4]} look={[0, 10]} kit={BLUE} role="nonstriker" />
-      <Person at={[1.4, -12.6]} look={striker} kit={BLACK} hat={BLACK} trousers={BLACK} role="umpire" />
-      <Person at={[-14, 9.5]} look={[0, 9.5]} kit={BLACK} hat={BLACK} trousers={BLACK} role="umpire" />
+      <Person
+        at={[1.4, -12.6]}
+        look={striker}
+        kit={BLACK}
+        hat={BLACK}
+        trousers={BLACK}
+        role="umpire"
+      />
+      <Person
+        at={[-14, 9.5]}
+        look={[0, 9.5]}
+        kit={BLACK}
+        hat={BLACK}
+        trousers={BLACK}
+        role="umpire"
+      />
     </group>
   )
 }

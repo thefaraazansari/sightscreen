@@ -61,7 +61,8 @@ const syncUrl = (t: TimeOfDay) => {
   history.replaceState(null, '', `/?${q}${location.hash}`)
 }
 
-const same = (a: SeatRef | null, b: SeatRef | null) => a?.stand === b?.stand && a?.index === b?.index
+const same = (a: SeatRef | null, b: SeatRef | null) =>
+  a?.stand === b?.stand && a?.index === b?.index
 
 export const useStadium = create<State>((set, get) => ({
   ready: false,
@@ -99,15 +100,45 @@ export const useStadium = create<State>((set, get) => ({
       activeTier,
       hoveredSeat: null,
       hoveredBlock: null,
-      activeBlock: activeTier !== null && s.activeBlock && s.activeBlock.tier !== activeTier ? null : s.activeBlock,
+      activeBlock:
+        activeTier !== null && s.activeBlock && s.activeBlock.tier !== activeTier
+          ? null
+          : s.activeBlock,
     })),
   hoverBlock: (hoveredBlock) =>
-    get().hoveredBlock?.tier !== hoveredBlock?.tier || get().hoveredBlock?.block !== hoveredBlock?.block ? set({ hoveredBlock }) : undefined,
-  selectBlock: (activeBlock) => set({ activeBlock, hoveredBlock: null, hoveredSeat: null, selectedSeat: null, activeTier: activeBlock ? activeBlock.tier : null }),
+    get().hoveredBlock?.tier !== hoveredBlock?.tier ||
+    get().hoveredBlock?.block !== hoveredBlock?.block
+      ? set({ hoveredBlock })
+      : undefined,
+  selectBlock: (activeBlock) =>
+    set({
+      activeBlock,
+      hoveredBlock: null,
+      hoveredSeat: null,
+      selectedSeat: null,
+      activeTier: activeBlock ? activeBlock.tier : null,
+    }),
   selectSeat: (selectedSeat) => set({ selectedSeat }),
   backToBlock: () => set({ mode: 'stand', selectedSeat: null, hoveredSeat: null }),
-  backToStadium: () => set({ mode: 'overview', activeStand: null, activeTier: null, activeBlock: null, hoveredBlock: null, selectedSeat: null, hoveredSeat: null }),
-  backToStand: () => set({ mode: 'stand', activeBlock: null, activeTier: null, selectedSeat: null, hoveredSeat: null, hoveredBlock: null }),
+  backToStadium: () =>
+    set({
+      mode: 'overview',
+      activeStand: null,
+      activeTier: null,
+      activeBlock: null,
+      hoveredBlock: null,
+      selectedSeat: null,
+      hoveredSeat: null,
+    }),
+  backToStand: () =>
+    set({
+      mode: 'stand',
+      activeBlock: null,
+      activeTier: null,
+      selectedSeat: null,
+      hoveredSeat: null,
+      hoveredBlock: null,
+    }),
   enterSeat: () => {
     const sel = get().selectedSeat
     if (sel) set({ mode: 'seat', activeStand: sel.stand, hoveredSeat: null })
@@ -115,12 +146,23 @@ export const useStadium = create<State>((set, get) => ({
   back: () => {
     const { mode } = get()
     if (mode === 'seat') set({ mode: 'stand' })
-    else if (mode === 'stand' && get().activeBlock) set({ activeBlock: null, activeTier: null, hoveredSeat: null, selectedSeat: null })
-    else if (mode === 'stand') set({ mode: 'overview', activeStand: null, activeTier: null, activeBlock: null, hoveredBlock: null, selectedSeat: null, hoveredSeat: null })
+    else if (mode === 'stand' && get().activeBlock)
+      set({ activeBlock: null, activeTier: null, hoveredSeat: null, selectedSeat: null })
+    else if (mode === 'stand')
+      set({
+        mode: 'overview',
+        activeStand: null,
+        activeTier: null,
+        activeBlock: null,
+        hoveredBlock: null,
+        selectedSeat: null,
+        hoveredSeat: null,
+      })
   },
 }))
 
 // Dev-only handle for debugging in the console.
-if (import.meta.env.DEV) (window as unknown as { __stadium: typeof useStadium }).__stadium = useStadium
+if (import.meta.env.DEV)
+  (window as unknown as { __stadium: typeof useStadium }).__stadium = useStadium
 
 syncUrl(useStadium.getState().time)

@@ -44,8 +44,13 @@ const OV_Z = 380 / OVERVIEW_ZOOM
 export function zoomBy(dir: 1 | -1) {
   const c = ctrl
   if (!c) return
-  if (useStadium.getState().mode === 'seat') void c.zoomTo(Math.min(3.5, Math.max(0.8, c.camera.zoom * (dir > 0 ? 1.35 : 1 / 1.35))), true)
-  else void c.dollyTo(Math.min(c.maxDistance, Math.max(c.minDistance, c.distance * (dir > 0 ? 0.65 : 1.5))), true)
+  if (useStadium.getState().mode === 'seat')
+    void c.zoomTo(Math.min(3.5, Math.max(0.8, c.camera.zoom * (dir > 0 ? 1.35 : 1 / 1.35))), true)
+  else
+    void c.dollyTo(
+      Math.min(c.maxDistance, Math.max(c.minDistance, c.distance * (dir > 0 ? 0.65 : 1.5))),
+      true,
+    )
 }
 
 function setLimits(c: CC, kind: 'overview' | 'stand' | 'seat') {
@@ -100,7 +105,16 @@ export function CameraRig() {
         const from = { az: (135 * Math.PI) / 180, polar: 1.18, d: 900 }
         let t0 = 0
         const DUR = 7000
-        const place = (az: number, polar: number, d: number) => c.setLookAt(d * Math.sin(polar) * Math.sin(az), d * Math.cos(polar), d * Math.sin(polar) * Math.cos(az), 0, 0, 0, false)
+        const place = (az: number, polar: number, d: number) =>
+          c.setLookAt(
+            d * Math.sin(polar) * Math.sin(az),
+            d * Math.cos(polar),
+            d * Math.sin(polar) * Math.cos(az),
+            0,
+            0,
+            0,
+            false,
+          )
         place(from.az, from.polar, from.d)
         let raf = 0
         const step = () => {
@@ -111,7 +125,11 @@ export function CameraRig() {
           if (!t0) t0 = performance.now()
           const k = Math.min(1, (performance.now() - t0) / DUR)
           const e = 1 - (1 - k) ** 4 // ease out: fast spin at first, settling slowly
-          void place(from.az * (1 - e), from.polar + (endP - from.polar) * e, from.d + (endD - from.d) * e)
+          void place(
+            from.az * (1 - e),
+            from.polar + (endP - from.polar) * e,
+            from.d + (endD - from.d) * e,
+          )
           if (k < 1) raf = requestAnimationFrame(step)
           else off()
         }
@@ -130,7 +148,9 @@ export function CameraRig() {
     } else if (mode === 'stand' && active !== null) {
       setLimits(c, 'stand')
       if (block) c.minDistance = 6
-      const { pos, target } = block ? blockView(active, block.tier, block.block) : standView(active, tier)
+      const { pos, target } = block
+        ? blockView(active, block.tier, block.block)
+        : standView(active, tier)
       void c.setLookAt(...pos, ...target, animate)
     } else if (mode === 'seat') {
       const sel = useStadium.getState().selectedSeat

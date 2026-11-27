@@ -1,6 +1,19 @@
 import { useFrame } from '@react-three/fiber'
 import { useLayoutEffect, useMemo, useRef } from 'react'
-import { BufferGeometry, CanvasTexture, Color, CylinderGeometry, DoubleSide, Float32BufferAttribute, InstancedMesh, MeshBasicMaterial, MeshStandardMaterial, Object3D, RepeatWrapping, SRGBColorSpace } from 'three'
+import {
+  BufferGeometry,
+  CanvasTexture,
+  Color,
+  CylinderGeometry,
+  DoubleSide,
+  Float32BufferAttribute,
+  InstancedMesh,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  Object3D,
+  RepeatWrapping,
+  SRGBColorSpace,
+} from 'three'
 import { A, B } from '../data/layout'
 import { live } from './Environment'
 import { ROPE } from './Ground'
@@ -30,7 +43,10 @@ function meshTexture() {
   return t
 }
 
-const point = (t: number, off: number): [number, number] => [(A + off) * Math.cos(t), (B + off) * Math.sin(t)]
+const point = (t: number, off: number): [number, number] => [
+  (A + off) * Math.cos(t),
+  (B + off) * Math.sin(t),
+]
 
 /** Triangular foam boundary cushions: a low sloping wedge facing the field, about 1.5 m long. */
 function wedgeGeometry() {
@@ -59,7 +75,10 @@ function wedgeGeometry() {
 function Cushions() {
   const ref = useRef<InstancedMesh>(null)
   const geo = useMemo(wedgeGeometry, [])
-  const mat = useMemo(() => new MeshStandardMaterial({ color: '#bcd8f2', roughness: 0.9, side: DoubleSide }), [])
+  const mat = useMemo(
+    () => new MeshStandardMaterial({ color: '#bcd8f2', roughness: 0.9, side: DoubleSide }),
+    [],
+  )
   const N = 330
   useLayoutEffect(() => {
     const m = ref.current
@@ -93,10 +112,48 @@ export function Fence() {
       const u0 = arc / MESH
       const u1 = (arc + len) / MESH
       const v1 = HEIGHT / MESH
-      pos.push(a[0], 0.05, a[1], b[0], 0.05, b[1], b[0], HEIGHT, b[1], a[0], 0.05, a[1], b[0], HEIGHT, b[1], a[0], HEIGHT, a[1])
+      pos.push(
+        a[0],
+        0.05,
+        a[1],
+        b[0],
+        0.05,
+        b[1],
+        b[0],
+        HEIGHT,
+        b[1],
+        a[0],
+        0.05,
+        a[1],
+        b[0],
+        HEIGHT,
+        b[1],
+        a[0],
+        HEIGHT,
+        a[1],
+      )
       uv.push(u0, 0, u1, 0, u1, v1, u0, 0, u1, v1, u0, v1)
       // top rail: a thin band along the upper edge
-      railPos.push(a[0], HEIGHT - 0.04, a[1], b[0], HEIGHT - 0.04, b[1], b[0], HEIGHT + 0.05, b[1], a[0], HEIGHT - 0.04, a[1], b[0], HEIGHT + 0.05, b[1], a[0], HEIGHT + 0.05, a[1])
+      railPos.push(
+        a[0],
+        HEIGHT - 0.04,
+        a[1],
+        b[0],
+        HEIGHT - 0.04,
+        b[1],
+        b[0],
+        HEIGHT + 0.05,
+        b[1],
+        a[0],
+        HEIGHT - 0.04,
+        a[1],
+        b[0],
+        HEIGHT + 0.05,
+        b[1],
+        a[0],
+        HEIGHT + 0.05,
+        a[1],
+      )
       arc += len
       if (j % 4 === 0) postXZ.push(a[0], a[1])
       prev = b
@@ -112,13 +169,23 @@ export function Fence() {
 
   const mats = useMemo(
     () => ({
-      net: new MeshBasicMaterial({ map: meshTexture(), transparent: true, alphaTest: 0.4, side: DoubleSide, depthWrite: false, color: '#dfe3ea' }),
+      net: new MeshBasicMaterial({
+        map: meshTexture(),
+        transparent: true,
+        alphaTest: 0.4,
+        side: DoubleSide,
+        depthWrite: false,
+        color: '#dfe3ea',
+      }),
       rail: new MeshBasicMaterial({ color: '#9aa1ad', side: DoubleSide }),
       post: new MeshStandardMaterial({ color: '#8d95a3', roughness: 0.6, metalness: 0.2 }),
     }),
     [],
   )
-  const postGeo = useMemo(() => new CylinderGeometry(0.06, 0.06, HEIGHT + 0.1, 6).translate(0, (HEIGHT + 0.1) / 2, 0), [])
+  const postGeo = useMemo(
+    () => new CylinderGeometry(0.06, 0.06, HEIGHT + 0.1, 6).translate(0, (HEIGHT + 0.1) / 2, 0),
+    [],
+  )
   const postMesh = useRef<InstancedMesh>(null)
   useLayoutEffect(() => {
     const m = postMesh.current
@@ -144,7 +211,12 @@ export function Fence() {
       <Cushions />
       <mesh geometry={net} material={mats.net} renderOrder={4} raycast={() => {}} />
       <mesh geometry={rail} material={mats.rail} raycast={() => {}} />
-      <instancedMesh ref={postMesh} args={[postGeo, mats.post, posts.length / 2]} frustumCulled={false} raycast={() => {}} />
+      <instancedMesh
+        ref={postMesh}
+        args={[postGeo, mats.post, posts.length / 2]}
+        frustumCulled={false}
+        raycast={() => {}}
+      />
     </group>
   )
 }

@@ -1,18 +1,49 @@
 import { Html } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
-import { CanvasTexture, DoubleSide, MathUtils, Matrix4, MeshBasicMaterial, MeshStandardMaterial, PlaneGeometry, Vector3 } from 'three'
-import { STANDS, TIER_NAMES, blockName, blockSurface, buildBlockPatch, levelAnchor, levelsOf } from '../data/layout'
+import {
+  CanvasTexture,
+  DoubleSide,
+  MathUtils,
+  Matrix4,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  PlaneGeometry,
+  Vector3,
+} from 'three'
+import {
+  STANDS,
+  TIER_NAMES,
+  blockName,
+  blockSurface,
+  buildBlockPatch,
+  levelAnchor,
+  levelsOf,
+} from '../data/layout'
 import { useStadium } from '../../../store/useStadium'
 
 /** One whole block on one floor: hover lights up the entire block, click zooms in on it. */
 function BlockPatch({ stand, tier, block }: { stand: number; tier: number; block: number }) {
   const geo = useMemo(() => buildBlockPatch(STANDS[stand], tier, block), [stand, tier, block])
-  const mat = useMemo(() => new MeshBasicMaterial({ color: '#ffd54a', transparent: true, opacity: 0, depthWrite: false, side: DoubleSide }), [])
+  const mat = useMemo(
+    () =>
+      new MeshBasicMaterial({
+        color: '#ffd54a',
+        transparent: true,
+        opacity: 0,
+        depthWrite: false,
+        side: DoubleSide,
+      }),
+    [],
+  )
   const o = useRef(0)
   useFrame((_, dt) => {
     const h = useStadium.getState().hoveredBlock
-    o.current = MathUtils.lerp(o.current, h && h.tier === tier && h.block === block ? 0.34 : 0, 1 - Math.exp(-dt * 14))
+    o.current = MathUtils.lerp(
+      o.current,
+      h && h.tier === tier && h.block === block ? 0.34 : 0,
+      1 - Math.exp(-dt * 14),
+    )
     mat.opacity = o.current
   })
   return (
@@ -39,19 +70,26 @@ function BlockPatch({ stand, tier, block }: { stand: number; tier: number; block
 
 /** Pickable blocks for the open stand (all floors, or just the chosen one) until a block is chosen. */
 export function BlockPickers() {
-  const stand = useStadium((s) => (s.mode === 'stand' && s.activeBlock === null ? s.activeStand : null))
+  const stand = useStadium((s) =>
+    s.mode === 'stand' && s.activeBlock === null ? s.activeStand : null,
+  )
   const tier = useStadium((s) => s.activeTier)
   if (stand === null) return null
   const s = STANDS[stand]
   const tiers = tier === null ? levelsOf(s) : [tier]
   return (
     <>
-      {tiers.flatMap((t) => Array.from({ length: s.blocks }, (_, b) => <BlockPatch key={`${stand}-${t}-${b}`} stand={stand} tier={t} block={b} />))}
+      {tiers.flatMap((t) =>
+        Array.from({ length: s.blocks }, (_, b) => (
+          <BlockPatch key={`${stand}-${t}-${b}`} stand={stand} tier={t} block={b} />
+        )),
+      )}
     </>
   )
 }
 
-const pill = 'level-pill pointer-events-none select-none whitespace-nowrap rounded-full bg-black/45 px-3 py-1.5 text-sm font-semibold text-white shadow-md backdrop-blur-sm'
+const pill =
+  'level-pill pointer-events-none select-none whitespace-nowrap rounded-full bg-black/45 px-3 py-1.5 text-sm font-semibold text-white shadow-md backdrop-blur-sm'
 
 const LETTER = 7 // metres
 const letterGeo = new PlaneGeometry(1, 1)
@@ -83,7 +121,19 @@ function letterMat(ch: string) {
     draw()
     void document.fonts.load(FONT).then(draw) // redraw once the font is in
     // a touch of self-light keeps it readable at night; mostly it takes light and shade like the seats
-    m = new MeshStandardMaterial({ map: t, emissiveMap: t, emissive: '#ffffff', emissiveIntensity: 0.22, transparent: true, opacity: 0.82, roughness: 1, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 })
+    m = new MeshStandardMaterial({
+      map: t,
+      emissiveMap: t,
+      emissive: '#ffffff',
+      emissiveIntensity: 0.22,
+      transparent: true,
+      opacity: 0.82,
+      roughness: 1,
+      depthWrite: false,
+      polygonOffset: true,
+      polygonOffsetFactor: -2,
+      polygonOffsetUnits: -2,
+    })
     letterMats.set(ch, m)
   }
   return m
@@ -92,15 +142,29 @@ function letterMat(ch: string) {
 function BlockLetter({ stand, tier, block }: { stand: number; tier: number; block: number }) {
   const { pos, mat } = useMemo(() => {
     const f = blockSurface(stand, tier, block)
-    const m = new Matrix4().makeBasis(new Vector3(...f.x), new Vector3(...f.s), new Vector3(...f.n)).setPosition(...f.p).multiply(new Matrix4().makeScale(LETTER, LETTER, 1))
+    const m = new Matrix4()
+      .makeBasis(new Vector3(...f.x), new Vector3(...f.s), new Vector3(...f.n))
+      .setPosition(...f.p)
+      .multiply(new Matrix4().makeScale(LETTER, LETTER, 1))
     return { pos: m, mat: letterMat(blockName(block, stand)) }
   }, [stand, tier, block])
-  return <mesh geometry={letterGeo} material={mat} matrix={pos} matrixAutoUpdate={false} renderOrder={5} raycast={() => {}} />
+  return (
+    <mesh
+      geometry={letterGeo}
+      material={mat}
+      matrix={pos}
+      matrixAutoUpdate={false}
+      renderOrder={5}
+      raycast={() => {}}
+    />
+  )
 }
 
 /** Floor names beside the start of the stand and block letters printed on the seats; shown only in the stand view. */
 export function StandLabels() {
-  const stand = useStadium((s) => (s.mode === 'stand' && s.activeBlock === null ? s.activeStand : null))
+  const stand = useStadium((s) =>
+    s.mode === 'stand' && s.activeBlock === null ? s.activeStand : null,
+  )
   const tier = useStadium((s) => s.activeTier)
   if (stand === null) return null
   const s = STANDS[stand]
@@ -113,7 +177,11 @@ export function StandLabels() {
           <div className={pill}>{TIER_NAMES[t]}</div>
         </Html>
       ))}
-      {tiers.flatMap((t) => Array.from({ length: s.blocks }, (_, b) => <BlockLetter key={`${t}-${b}`} stand={stand} tier={t} block={b} />))}
+      {tiers.flatMap((t) =>
+        Array.from({ length: s.blocks }, (_, b) => (
+          <BlockLetter key={`${t}-${b}`} stand={stand} tier={t} block={b} />
+        )),
+      )}
     </>
   )
 }

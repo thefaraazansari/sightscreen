@@ -35,7 +35,10 @@ export function seawardNormals(chain: P[]): P[] {
 }
 
 /** Point on the coast plus `off` metres seaward (negative = landward). */
-export const at = (chain: P[], n: P[], i: number, off: number): P => [chain[i][0] + n[i][0] * off, chain[i][1] + n[i][1] * off]
+export const at = (chain: P[], n: P[], i: number, off: number): P => [
+  chain[i][0] + n[i][0] * off,
+  chain[i][1] + n[i][1] * off,
+]
 
 /** 0..1: how much the sea is pushed out at a coast point (full near the stadium, none far away). */
 export const pushK = (p: P) => Math.min(1, Math.max(0, (1700 - Math.hypot(p[0], p[1])) / 300))

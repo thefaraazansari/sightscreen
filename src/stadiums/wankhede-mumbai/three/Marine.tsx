@@ -41,7 +41,13 @@ function ribbon(line: P[], widthOf: number | ((i: number) => number), y: number)
   }
   const g = new BufferGeometry()
   g.setAttribute('position', new Float32BufferAttribute(pos, 3))
-  g.setAttribute('normal', new Float32BufferAttribute(pos.map((_, i) => (i % 3 === 1 ? 1 : 0)), 3))
+  g.setAttribute(
+    'normal',
+    new Float32BufferAttribute(
+      pos.map((_, i) => (i % 3 === 1 ? 1 : 0)),
+      3,
+    ),
+  )
   return g
 }
 
@@ -51,7 +57,9 @@ function waveStrip(inner: P[], outer: P[]) {
   const u: number[] = []
   const sv: number[] = []
   let arc = 0
-  const arcs = inner.map((p, i) => (i ? (arc += Math.hypot(p[0] - inner[i - 1][0], p[1] - inner[i - 1][1])) : 0))
+  const arcs = inner.map((p, i) =>
+    i ? (arc += Math.hypot(p[0] - inner[i - 1][0], p[1] - inner[i - 1][1])) : 0,
+  )
   for (let i = 0; i < inner.length - 1; i++) {
     for (const [pt, k, f] of [
       [outer[i], i, 1],
@@ -76,7 +84,17 @@ function waveStrip(inner: P[], outer: P[]) {
 /** A real tetrapod: four tapered legs pointing to the corners of a tetrahedron, one leg up, three on the ground. */
 function tetrapodGeometry() {
   const k = Math.sqrt(8 / 9)
-  const dirs = [new Vector3(0, 1, 0), ...[0, 1, 2].map((i) => new Vector3(k * Math.cos((i * 2 * Math.PI) / 3), -1 / 3, k * Math.sin((i * 2 * Math.PI) / 3)))]
+  const dirs = [
+    new Vector3(0, 1, 0),
+    ...[0, 1, 2].map(
+      (i) =>
+        new Vector3(
+          k * Math.cos((i * 2 * Math.PI) / 3),
+          -1 / 3,
+          k * Math.sin((i * 2 * Math.PI) / 3),
+        ),
+    ),
+  ]
   const legs = dirs.map((d) => {
     const g = new CylinderGeometry(0.3, 0.52, 1.5, 7).translate(0, 0.75, 0) // thick at the hub, tapering outwards
     g.applyQuaternion(new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), d))
@@ -112,7 +130,10 @@ export function Marine({ coast }: { coast: P[] }) {
       for (let j = 0; j < k; j++) {
         const f = j / k
         dense.push({
-          p: [chain[i][0] + (chain[i + 1][0] - chain[i][0]) * f, chain[i][1] + (chain[i + 1][1] - chain[i][1]) * f],
+          p: [
+            chain[i][0] + (chain[i + 1][0] - chain[i][0]) * f,
+            chain[i][1] + (chain[i + 1][1] - chain[i][1]) * f,
+          ],
           n: [nn[i][0] + (nn[i + 1][0] - nn[i][0]) * f, nn[i][1] + (nn[i + 1][1] - nn[i][1]) * f],
           // how far the sea is pushed out here, interpolated along the coast exactly like the sea shape
           k: pushK(chain[i]) + (pushK(chain[i + 1]) - pushK(chain[i])) * f,
@@ -124,11 +145,23 @@ export function Marine({ coast }: { coast: P[] }) {
     // where the sea is pushed less (the far ends of the promenade) everything shrinks with it, so nothing ends up in the water or on the road
     const ks = dense.map((d) => d.k)
     const amount = (i: number) => PUSH * ks[i]
-    const line = (off: (a: number, k: number) => number) => pts.map((_, i) => at(pts, nrm, i, off(amount(i), ks[i])))
+    const line = (off: (a: number, k: number) => number) =>
+      pts.map((_, i) => at(pts, nrm, i, off(amount(i), ks[i])))
     return {
-      prom: ribbon(line((a, k) => a * 0.5 - k), (i) => Math.max(0.5, (PUSH - 4) * ks[i]), 0.09),
-      wall: ribbon(line((a, k) => a - 1.2 * k), (i) => 1.6 * Math.max(0.3, ks[i]), 0.7),
-      waves: waveStrip(line((a) => a + 5), line((a) => a + 38)),
+      prom: ribbon(
+        line((a, k) => a * 0.5 - k),
+        (i) => Math.max(0.5, (PUSH - 4) * ks[i]),
+        0.09,
+      ),
+      wall: ribbon(
+        line((a, k) => a - 1.2 * k),
+        (i) => 1.6 * Math.max(0.3, ks[i]),
+        0.7,
+      ),
+      waves: waveStrip(
+        line((a) => a + 5),
+        line((a) => a + 38),
+      ),
       pts,
       nrm,
       ks,
@@ -142,10 +175,22 @@ export function Marine({ coast }: { coast: P[] }) {
       const a = PUSH * data.ks[i]
       if (data.ks[i] < 0.15) return // the breakwater and palms fade out with the promenade
       // breakwater: rows of concrete tetrapods from the foot of the seawall out into the shallows
-      for (const [row, base, big] of [[0, a + 0.9, 0.8], [1, a + 3.6, 1], [2, a + 6.8, 1.15], [3, a + 10, 1.25]] as const) {
+      for (const [row, base, big] of [
+        [0, a + 0.9, 0.8],
+        [1, a + 3.6, 1],
+        [2, a + 6.8, 1.15],
+        [3, a + 10, 1.25],
+      ] as const) {
         const [x, z] = at(data.pts, data.nrm, i, base + rnd(i * 3 + row) * 1.4)
         const sc = (1.25 + rnd(i * 13 + row) * 0.8) * big
-        tetra.push(x + (rnd(i * 5 + row) - 0.5) * 1.5, 0.5 * sc + (rnd(i * 7 + row) > 0.78 ? sc * 0.8 : 0), z, rnd(i * 11 + row) * 6.28, rnd(i * 17 + row), sc)
+        tetra.push(
+          x + (rnd(i * 5 + row) - 0.5) * 1.5,
+          0.5 * sc + (rnd(i * 7 + row) > 0.78 ? sc * 0.8 : 0),
+          z,
+          rnd(i * 11 + row) * 6.28,
+          rnd(i * 17 + row),
+          sc,
+        )
       }
       // scattered ones tumbled further out in the water
       if (i % 2 === 0) {
@@ -172,15 +217,28 @@ export function Marine({ coast }: { coast: P[] }) {
 
   const mats = useMemo(
     () => ({
-      prom: new MeshStandardMaterial({ color: '#bdb6a6', roughness: 1, side: DoubleSide, depthWrite: false, emissive: '#ffb066', emissiveIntensity: 0 }),
-      wall: new MeshStandardMaterial({ color: '#e6e0d2', roughness: 1, side: DoubleSide, depthWrite: false }),
+      prom: new MeshStandardMaterial({
+        color: '#bdb6a6',
+        roughness: 1,
+        side: DoubleSide,
+        depthWrite: false,
+        emissive: '#ffb066',
+        emissiveIntensity: 0,
+      }),
+      wall: new MeshStandardMaterial({
+        color: '#e6e0d2',
+        roughness: 1,
+        side: DoubleSide,
+        depthWrite: false,
+      }),
       // swells that roll in from the open water and break on the tetrapods
       waves: new ShaderMaterial({
         transparent: true,
         depthWrite: false,
         side: DoubleSide,
         uniforms: { uTime: { value: 0 }, uTone: { value: new Color('#ffffff') } },
-        vertexShader: 'attribute float wu; attribute float ws; varying float vU; varying float vS; void main(){ vU = wu; vS = ws; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+        vertexShader:
+          'attribute float wu; attribute float ws; varying float vU; varying float vS; void main(){ vU = wu; vS = ws; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
         fragmentShader: `uniform float uTime; uniform vec3 uTone; varying float vU; varying float vS;
           void main() {
             float x = vU;
@@ -194,7 +252,12 @@ export function Marine({ coast }: { coast: P[] }) {
             gl_FragColor = vec4(uTone, a);
           }`,
       }),
-      tetra: new MeshStandardMaterial({ color: '#ffffff', roughness: 1, emissive: '#b98a5e', emissiveIntensity: 0 }),
+      tetra: new MeshStandardMaterial({
+        color: '#ffffff',
+        roughness: 1,
+        emissive: '#b98a5e',
+        emissiveIntensity: 0,
+      }),
       trunk: new MeshStandardMaterial({ color: '#6b5640', roughness: 1 }),
       crown: new MeshStandardMaterial({ color: '#2f6a2f', roughness: 1, flatShading: true }),
     }),
@@ -215,7 +278,11 @@ export function Marine({ coast }: { coast: P[] }) {
       for (let k = 0; k < tetraPos.length / 6; k++) {
         const o = k * 6
         dummy.position.set(tetraPos[o], tetraPos[o + 1], tetraPos[o + 2])
-        dummy.rotation.set((tetraPos[o + 4] - 0.5) * 0.5, tetraPos[o + 3], (tetraPos[o + 4] * 7 - 3.5) * 0.14)
+        dummy.rotation.set(
+          (tetraPos[o + 4] - 0.5) * 0.5,
+          tetraPos[o + 3],
+          (tetraPos[o + 4] * 7 - 3.5) * 0.14,
+        )
         dummy.scale.setScalar(tetraPos[o + 5])
         dummy.updateMatrix()
         tetra.current.setMatrixAt(k, dummy.matrix)
@@ -251,9 +318,24 @@ export function Marine({ coast }: { coast: P[] }) {
       <mesh geometry={data.prom} material={mats.prom} renderOrder={5} />
       <mesh geometry={data.wall} material={mats.wall} renderOrder={5} />
       <mesh geometry={data.waves} material={mats.waves} renderOrder={6} frustumCulled={false} />
-      <instancedMesh ref={tetra} args={[geos.tetra, mats.tetra, tetraPos.length / 6]} frustumCulled={false} raycast={() => {}} />
-      <instancedMesh ref={trunks} args={[geos.trunk, mats.trunk, palmPos.length / 3]} frustumCulled={false} raycast={() => {}} />
-      <instancedMesh ref={crowns} args={[geos.crown, mats.crown, palmPos.length / 3]} frustumCulled={false} raycast={() => {}} />
+      <instancedMesh
+        ref={tetra}
+        args={[geos.tetra, mats.tetra, tetraPos.length / 6]}
+        frustumCulled={false}
+        raycast={() => {}}
+      />
+      <instancedMesh
+        ref={trunks}
+        args={[geos.trunk, mats.trunk, palmPos.length / 3]}
+        frustumCulled={false}
+        raycast={() => {}}
+      />
+      <instancedMesh
+        ref={crowns}
+        args={[geos.crown, mats.crown, palmPos.length / 3]}
+        frustumCulled={false}
+        raycast={() => {}}
+      />
     </group>
   )
 }

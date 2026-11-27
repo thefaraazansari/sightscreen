@@ -20,7 +20,15 @@ export function TimeToggle() {
           onClick={() => setTime(t)}
           className={`flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${time === t ? 'bg-accent text-accent-ink' : 'text-mute hover:text-ink'}`}
         >
-          <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            viewBox="0 0 24 24"
+            className="size-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d={ICONS[t]} />
           </svg>
           <span className="hidden sm:inline">{TIMES[t].label}</span>

@@ -11,7 +11,11 @@ import { StandView } from './Stand'
 
 export default function Scene() {
   return (
-    <Canvas dpr={[1, 2]} camera={{ fov: 50, near: 0.1, far: 6000, position: [0, 320, 380] }} gl={{ antialias: true }}>
+    <Canvas
+      dpr={[1, 2]}
+      camera={{ fov: 50, near: 0.1, far: 6000, position: [0, 320, 380] }}
+      gl={{ antialias: true }}
+    >
       <Environment />
       <Ground />
       <Players />

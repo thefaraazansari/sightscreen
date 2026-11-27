@@ -18,14 +18,26 @@ import {
   SphereGeometry,
 } from 'three'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
-import { SEATS, STANDS, buildMasts, buildRim, buildRoof, buildStrip, buildTerrace, levelsOf, STRIPS } from '../data/layout'
+import {
+  SEATS,
+  STANDS,
+  buildMasts,
+  buildRim,
+  buildRoof,
+  buildStrip,
+  buildTerrace,
+  levelsOf,
+  STRIPS,
+} from '../data/layout'
 import { useStadium } from '../../../store/useStadium'
 import { live } from './Environment'
 
 // every seat in a stand takes that stand's colour (the dot next to its name); the selected seat is bright yellow
 // (bright white for the yellow stand, so it still stands out)
 const STAND_COLORS = STANDS.map((st) => new Color(st.color))
-const STAND_HOVER = STAND_COLORS.map((c) => c.clone().lerp(new Color('#ffffff'), 0.55).multiplyScalar(1.15))
+const STAND_HOVER = STAND_COLORS.map((c) =>
+  c.clone().lerp(new Color('#ffffff'), 0.55).multiplyScalar(1.15),
+)
 const SELECTED_YELLOW = new Color('#ffd21a').multiplyScalar(1.9)
 const SELECTED_WHITE = new Color('#ffffff').multiplyScalar(2.2)
 const noRaycast = () => {}
@@ -48,16 +60,33 @@ function seatShape() {
   return sh
 }
 function seatGeometry(rounded: boolean) {
-  const g = new ExtrudeGeometry(seatShape(), rounded ? { depth: 0.38, bevelEnabled: true, bevelSize: 0.025, bevelThickness: 0.025, bevelSegments: 1 } : { depth: 0.44, bevelEnabled: false })
+  const g = new ExtrudeGeometry(
+    seatShape(),
+    rounded
+      ? {
+          depth: 0.38,
+          bevelEnabled: true,
+          bevelSize: 0.025,
+          bevelThickness: 0.025,
+          bevelSegments: 1,
+        }
+      : { depth: 0.44, bevelEnabled: false },
+  )
   g.rotateY(-Math.PI / 2) // extrusion becomes the seat's width
   g.computeBoundingBox()
   const w = (g.boundingBox!.max.x + g.boundingBox!.min.x) / 2
   g.translate(-w, 0, 0)
-  g.setAttribute('color', new Float32BufferAttribute(new Array(g.attributes.position.count * 3).fill(1), 3))
+  g.setAttribute(
+    'color',
+    new Float32BufferAttribute(new Array(g.attributes.position.count * 3).fill(1), 3),
+  )
   if (!rounded) return g
   // thin dark crease across the seat at the bend between the sitting pan and the back support
   const crease = new BoxGeometry(0.4, 0.02, 0.02).translate(0, 0.356, -0.158).toNonIndexed()
-  crease.setAttribute('color', new Float32BufferAttribute(new Array(crease.attributes.position.count * 3).fill(0.12), 3))
+  crease.setAttribute(
+    'color',
+    new Float32BufferAttribute(new Array(crease.attributes.position.count * 3).fill(0.12), 3),
+  )
   return mergeGeometries([g, crease])
 }
 const seatHi = seatGeometry(true)
@@ -68,7 +97,18 @@ const bodyGeo = new CylinderGeometry(0.17, 0.21, 0.5, 6).translate(0, 0.62, -0.0
 const headGeo = new SphereGeometry(0.11, 6, 5).translate(0, 1.02, -0.06)
 const bodyMat = new MeshStandardMaterial({ roughness: 0.9 })
 const headMat = new MeshStandardMaterial({ roughness: 0.8 })
-const SHIRTS = ['#1e56c8', '#1e56c8', '#2e6fe0', '#1e56c8', '#ffffff', '#e8e8e8', '#f2c230', '#d63a3a', '#222a3a', '#2a9d5c'].map((c) => new Color(c))
+const SHIRTS = [
+  '#1e56c8',
+  '#1e56c8',
+  '#2e6fe0',
+  '#1e56c8',
+  '#ffffff',
+  '#e8e8e8',
+  '#f2c230',
+  '#d63a3a',
+  '#222a3a',
+  '#2a9d5c',
+].map((c) => new Color(c))
 const SKIN = ['#f1c27d', '#e0ac69', '#c68642', '#8d5524', '#5c3a21'].map((c) => new Color(c))
 const hash = (n: number) => {
   let x = Math.imul(n ^ 0x9e3779b9, 0x85ebca6b)
@@ -128,13 +168,20 @@ function flagTexture(arc: number) {
       g.stroke()
       // small bead where each spoke meets the rim
       g.beginPath()
-      g.arc(Math.cos(a + Math.PI / 24) * r * 0.9, Math.sin(a + Math.PI / 24) * r * 0.9, r * 0.045, 0, Math.PI * 2)
+      g.arc(
+        Math.cos(a + Math.PI / 24) * r * 0.9,
+        Math.sin(a + Math.PI / 24) * r * 0.9,
+        r * 0.045,
+        0,
+        Math.PI * 2,
+      )
       g.fill()
     }
     g.restore()
     // soft folds of cloth across the flag
     const fold = g.createLinearGradient(x, 0, x + fw, 0)
-    for (let q = 0; q <= 6; q++) fold.addColorStop(q / 6, q % 2 ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.12)')
+    for (let q = 0; q <= 6; q++)
+      fold.addColorStop(q / 6, q % 2 ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.12)')
     g.fillStyle = fold
     g.fillRect(x, y, fw, fh)
     g.strokeStyle = 'rgba(0,0,0,0.22)' // faint edge so the white band reads on light walls
@@ -181,16 +228,36 @@ function TierSeats({ i, tier, mat }: { i: number; tier: number; mat: MeshStandar
   const count = set.tierStart[tier + 1] - start
   const ref = useRef<InstancedMesh>(null)
   const seatMode = useStadium((s) => s.mode === 'seat')
-  const visible = useStadium((s) => s.mode !== 'stand' || (s.activeStand === i && (s.activeTier === null || s.activeTier === tier) && (s.activeBlock === null || s.activeBlock.tier === tier)))
+  const visible = useStadium(
+    (s) =>
+      s.mode !== 'stand' ||
+      (s.activeStand === i &&
+        (s.activeTier === null || s.activeTier === tier) &&
+        (s.activeBlock === null || s.activeBlock.tier === tier)),
+  )
   // once a block is chosen only that block's seats remain (others are scaled away)
-  const blockOnly = useStadium((s) => (s.mode === 'stand' && s.activeStand === i && s.activeBlock && s.activeBlock.tier === tier ? s.activeBlock.block : -1))
+  const blockOnly = useStadium((s) =>
+    s.mode === 'stand' && s.activeStand === i && s.activeBlock && s.activeBlock.tier === tier
+      ? s.activeBlock.block
+      : -1,
+  )
   const detail = useStadium((s) => s.activeStand === i)
   const enabled = useStadium((s) => s.mode === 'stand' && visible && s.activeBlock !== null)
-  const selected = useStadium((s) => (s.selectedSeat?.stand === i ? s.selectedSeat.index - start : -1))
+  const selected = useStadium((s) =>
+    s.selectedSeat?.stand === i ? s.selectedSeat.index - start : -1,
+  )
   const hovered = useStadium((s) => (s.hoveredSeat?.stand === i ? s.hoveredSeat.index - start : -1))
 
   const paint = (k: number, sel: number, hov: number) => {
-    const c = seatMode ? STAND_COLORS[i] : k === sel ? (i === 3 ? SELECTED_WHITE : SELECTED_YELLOW) : k === hov ? STAND_HOVER[i] : STAND_COLORS[i]
+    const c = seatMode
+      ? STAND_COLORS[i]
+      : k === sel
+        ? i === 3
+          ? SELECTED_WHITE
+          : SELECTED_YELLOW
+        : k === hov
+          ? STAND_HOVER[i]
+          : STAND_COLORS[i]
     ref.current!.setColorAt(k, c)
   }
 
@@ -218,7 +285,8 @@ function TierSeats({ i, tier, mat }: { i: number; tier: number; mat: MeshStandar
 
   const prev = useRef<number[]>([])
   useLayoutEffect(() => {
-    for (const k of [...prev.current, selected, hovered]) if (k >= 0 && k < count) paint(k, selected, hovered)
+    for (const k of [...prev.current, selected, hovered])
+      if (k >= 0 && k < count) paint(k, selected, hovered)
     prev.current = [selected, hovered]
     if (ref.current!.instanceColor) ref.current!.instanceColor.needsUpdate = true
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -256,7 +324,8 @@ function Crowd({ i, tier }: { i: number; tier: number }) {
   const head = useRef<InstancedMesh>(null)
   const idx = useMemo(() => {
     const out: number[] = []
-    for (let g = set.tierStart[tier]; g < set.tierStart[tier + 1]; g++) if (hash(i * 7919 + g * 31) < 0.62) out.push(g)
+    for (let g = set.tierStart[tier]; g < set.tierStart[tier + 1]; g++)
+      if (hash(i * 7919 + g * 31) < 0.62) out.push(g)
     return out
   }, [set, tier])
   useLayoutEffect(() => {
@@ -266,7 +335,8 @@ function Crowd({ i, tier }: { i: number; tier: number }) {
       const h = hash(i * 100003 + g)
       o.position.set(set.x[g], set.y[g], set.z[g])
       o.rotation.y = set.rot[g]
-      if (g === picked) o.scale.setScalar(0.0001) // nobody sits in your own seat
+      if (g === picked)
+        o.scale.setScalar(0.0001) // nobody sits in your own seat
       else o.scale.set(1, 0.92 + h * 0.2, 1)
       o.updateMatrix()
       body.current!.setMatrixAt(k, o.matrix)
@@ -297,8 +367,14 @@ function seatMaterial() {
     sh.uniforms.uDull = { value: 0 }
     m.userData.sh = sh
     sh.fragmentShader = sh.fragmentShader
-      .replace('#include <common>', '#include <common>\nuniform float uGlow;\nuniform float uDim;\nuniform float uDull;')
-      .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\nfloat lum = dot(diffuseColor.rgb, vec3(0.3, 0.59, 0.11));\ndiffuseColor.rgb = mix(diffuseColor.rgb, vec3(lum), uDull) * uDim;\ntotalEmissiveRadiance += diffuseColor.rgb * uGlow;')
+      .replace(
+        '#include <common>',
+        '#include <common>\nuniform float uGlow;\nuniform float uDim;\nuniform float uDull;',
+      )
+      .replace(
+        '#include <emissivemap_fragment>',
+        '#include <emissivemap_fragment>\nfloat lum = dot(diffuseColor.rgb, vec3(0.3, 0.59, 0.11));\ndiffuseColor.rgb = mix(diffuseColor.rgb, vec3(lum), uDull) * uDim;\ntotalEmissiveRadiance += diffuseColor.rgb * uGlow;',
+      )
   }
   return m
 }
@@ -311,10 +387,21 @@ export function StandView({ i }: { i: number }) {
   const strips = useMemo(() => [buildStrip(stand, 0), buildStrip(stand, 1)], [stand])
   // strip 0 is the lower banner (between levels 1 and 2): the stand's name; strip 1 is the top banner: flags
   const labelMats = useMemo(() => {
-    const opts = { transparent: true, depthWrite: false, side: DoubleSide, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 }
+    const opts = {
+      transparent: true,
+      depthWrite: false,
+      side: DoubleSide,
+      polygonOffset: true,
+      polygonOffsetFactor: -4,
+      polygonOffsetUnits: -4,
+    }
     return [
       new MeshBasicMaterial({ map: nameTexture(stand.name, stand.color), ...opts }),
-      new MeshBasicMaterial({ map: flagTexture(((stand.t1 - stand.t0) * Math.PI) / 180 * (70 + STRIPS[1].d)), toneMapped: false, ...opts }),
+      new MeshBasicMaterial({
+        map: flagTexture((((stand.t1 - stand.t0) * Math.PI) / 180) * (70 + STRIPS[1].d)),
+        toneMapped: false,
+        ...opts,
+      }),
     ]
   }, [stand])
   const masts = useMemo(() => (stand.roof ? buildMasts(stand) : null), [stand])
@@ -322,8 +409,17 @@ export function StandView({ i }: { i: number }) {
     () => ({
       terrace: new MeshStandardMaterial({ vertexColors: true, side: DoubleSide, roughness: 0.9 }),
       seat: seatMaterial(),
-      roof: new MeshStandardMaterial({ vertexColors: true, side: DoubleSide, transparent: true, roughness: 0.7 }),
-      rim: new MeshStandardMaterial({ color: '#d8d4c8', emissive: '#ffe9b8', emissiveIntensity: 0 }),
+      roof: new MeshStandardMaterial({
+        vertexColors: true,
+        side: DoubleSide,
+        transparent: true,
+        roughness: 0.7,
+      }),
+      rim: new MeshStandardMaterial({
+        color: '#d8d4c8',
+        emissive: '#ffe9b8',
+        emissiveIntensity: 0,
+      }),
       mast: new MeshStandardMaterial({ vertexColors: true, roughness: 0.5, metalness: 0.4 }),
     }),
     [],

@@ -1,32 +1,33 @@
-# React + TypeScript + Vite
+# SightScreen
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Preview the view from your seat before you book. SightScreen is an interactive 3D model of Wankhede Stadium, Mumbai. Pick a stand, block or seat, see what the pitch looks like from there, and switch the time of day. Then jump to a booking site.
 
-Currently, two official plugins are available:
+**Live:** https://thefaraazansari.github.io/sightscreen/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Stack
 
-## React Compiler
+React 19, TypeScript, Vite, Three.js (React Three Fiber + drei), Tailwind CSS 4, Zustand. Linting and formatting with Biome.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Run locally
 
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```sh
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+| Command           | What it does                        |
+| ----------------- | ----------------------------------- |
+| `npm run dev`     | Start the dev server                |
+| `npm run build`   | Type-check and build into `dist/`   |
+| `npm run preview` | Serve the production build          |
+| `npm run lint`    | Lint and check formatting (Biome)   |
+| `npm run format`  | Auto-fix lint issues and formatting |
+
+## Deployment
+
+Every push to `main` runs `.github/workflows/deploy.yml`, which:
+
+1. builds the app and deploys it to GitHub Pages,
+2. creates a GitHub release named `SightScreen vX.Y.Z`, with tag `vX.Y.Z`. The patch number goes up by one each time, starting at `v1.0.0`.
+
+One-time setup: in the repo go to Settings → Pages → Source and choose **GitHub Actions**.

@@ -33,11 +33,49 @@ interface Osm {
   p: { p: number[]; c: [number, number]; a: number }[]
 }
 
-const ROAD_W: Record<string, number> = { motorway: 12, trunk: 14, primary: 13, secondary: 10, tertiary: 8, residential: 6, unclassified: 6, service: 3.5, pedestrian: 4, footway: 1.6, rail: 5 }
+const ROAD_W: Record<string, number> = {
+  motorway: 12,
+  trunk: 14,
+  primary: 13,
+  secondary: 10,
+  tertiary: 8,
+  residential: 6,
+  unclassified: 6,
+  service: 3.5,
+  pedestrian: 4,
+  footway: 1.6,
+  rail: 5,
+}
 /** width of a single one-way carriageway (OSM draws dual carriageways as two one-way ways) */
-const OW_W: Record<string, number> = { motorway: 12, trunk: 11, primary: 11, secondary: 8.5, tertiary: 7, residential: 5, unclassified: 5, service: 3.5 }
-const ROAD_LIT: Record<string, number> = { motorway: 1, trunk: 1, primary: 1, secondary: 0.9, tertiary: 0.75, residential: 0.5, unclassified: 0.4, service: 0.22, pedestrian: 0.2, footway: 0.1, rail: 0 }
-const ROAD_C: Record<string, string> = { rail: '#5a544d', footway: '#a79c88', service: '#8a8a90', pedestrian: '#8d8577' }
+const OW_W: Record<string, number> = {
+  motorway: 12,
+  trunk: 11,
+  primary: 11,
+  secondary: 8.5,
+  tertiary: 7,
+  residential: 5,
+  unclassified: 5,
+  service: 3.5,
+}
+const ROAD_LIT: Record<string, number> = {
+  motorway: 1,
+  trunk: 1,
+  primary: 1,
+  secondary: 0.9,
+  tertiary: 0.75,
+  residential: 0.5,
+  unclassified: 0.4,
+  service: 0.22,
+  pedestrian: 0.2,
+  footway: 0.1,
+  rail: 0,
+}
+const ROAD_C: Record<string, string> = {
+  rail: '#5a544d',
+  footway: '#a79c88',
+  service: '#8a8a90',
+  pedestrian: '#8d8577',
+}
 
 export interface Piece {
   c: string
@@ -100,7 +138,20 @@ const toShape = (p: number[]) => {
   return sh
 }
 
-function ribbon(p: number[], w: number, y: number, c: Color, lit: number, ow: boolean, pos: number[], col: number[], litA: number[], sA: number[], uA: number[], wA: number[]) {
+function ribbon(
+  p: number[],
+  w: number,
+  y: number,
+  c: Color,
+  lit: number,
+  ow: boolean,
+  pos: number[],
+  col: number[],
+  litA: number[],
+  sA: number[],
+  uA: number[],
+  wA: number[],
+) {
   const pts: [number, number][] = []
   for (let i = 0; i < p.length; i += 2) pts.push([p[i], p[i + 1]])
   const left: [number, number][] = []
@@ -117,7 +168,8 @@ function ribbon(p: number[], w: number, y: number, c: Color, lit: number, ow: bo
     right.push([q[0] - nx, q[1] - nz])
   })
   const cum = [0]
-  for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]))
+  for (let i = 1; i < pts.length; i++)
+    cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]))
   const v = (q: [number, number], i: number, u: number) => {
     pos.push(q[0], y, q[1])
     col.push(c.r, c.g, c.b)
@@ -127,8 +179,12 @@ function ribbon(p: number[], w: number, y: number, c: Color, lit: number, ow: bo
     wA.push(ow ? -w : w)
   }
   for (let i = 0; i < pts.length - 1; i++) {
-    v(left[i], i, 0); v(right[i], i, 1); v(left[i + 1], i + 1, 0)
-    v(right[i], i, 1); v(right[i + 1], i + 1, 1); v(left[i + 1], i + 1, 0)
+    v(left[i], i, 0)
+    v(right[i], i, 1)
+    v(left[i + 1], i + 1, 0)
+    v(right[i], i, 1)
+    v(right[i + 1], i + 1, 1)
+    v(left[i + 1], i + 1, 0)
   }
 }
 
@@ -142,17 +198,34 @@ export function City() {
     if (!osm) return
     let n = 0
     let id = 0
-    const tick = () => (++n < 4 ? (id = requestAnimationFrame(tick)) : useStadium.getState().setReady())
+    const tick = () =>
+      ++n < 4 ? (id = requestAnimationFrame(tick)) : useStadium.getState().setReady()
     id = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(id)
   }, [osm])
 
   const geo = useMemo(() => {
     if (!osm) return null
-    const palette = ['#c9c4bb', '#d8d2c6', '#b9b4ab', '#e2dccf', '#c4bcae', '#a9a69f', '#d6cfc2', '#b4ada2'].map((c) => new Color(c))
+    const palette = [
+      '#c9c4bb',
+      '#d8d2c6',
+      '#b9b4ab',
+      '#e2dccf',
+      '#c4bcae',
+      '#a9a69f',
+      '#d6cfc2',
+      '#b4ada2',
+    ].map((c) => new Color(c))
     const bs: BufferGeometry[] = []
     // two tracks between the stadium and the road: east of the stands, clear of both
-    const railWays = osm.r.filter((r) => r.c === 'rail').map((r) => r.p.reduce<[number, number][]>((a, _, i) => (i % 2 ? a : (a.push([r.p[i], r.p[i + 1]]), a)), []))
+    const railWays = osm.r
+      .filter((r) => r.c === 'rail')
+      .map((r) =>
+        r.p.reduce<[number, number][]>(
+          (a, _, i) => (i % 2 ? a : (a.push([r.p[i], r.p[i + 1]]), a)),
+          [],
+        ),
+      )
     const tracks = makeTracks(railWays)
     const trackLines = tracks ? [tracks.south, tracks.north] : []
     const footprints = osm.b.concat(fillerBuildings(osm, (c) => ROAD_W[c] ?? 6, CLEAR))
@@ -189,16 +262,31 @@ export function City() {
         const g = new ExtrudeGeometry(toShape(foot), { depth: b.h, bevelEnabled: false })
         g.rotateX(-Math.PI / 2)
         const c = palette[i % palette.length]
-        g.setAttribute('color', new Float32BufferAttribute(Array.from({ length: g.attributes.position.count }, () => [c.r, c.g, c.b]).flat(), 3))
+        g.setAttribute(
+          'color',
+          new Float32BufferAttribute(
+            Array.from({ length: g.attributes.position.count }, () => [c.r, c.g, c.b]).flat(),
+            3,
+          ),
+        )
         const n = g.attributes.position.count
         // per-building 'occupancy': some blocks mostly lit at night, many mostly dark
-        g.setAttribute('seed', new Float32BufferAttribute(new Array(n).fill(0.04 + 0.8 * hash1(i + 1) ** 1.5), 1))
+        g.setAttribute(
+          'seed',
+          new Float32BufferAttribute(new Array(n).fill(0.04 + 0.8 * hash1(i + 1) ** 1.5), 1),
+        )
         bs.push(g.toNonIndexed())
       } catch {
         /* skip malformed footprint */
       }
     })
-    const buildings = mergeGeometries(bs.map((g) => { g.deleteAttribute('normal'); return g }), false)
+    const buildings = mergeGeometries(
+      bs.map((g) => {
+        g.deleteAttribute('normal')
+        return g
+      }),
+      false,
+    )
     buildings.computeVertexNormals()
 
     const pos: number[] = []
@@ -207,15 +295,29 @@ export function City() {
     const sA: number[] = []
     const uA: number[] = []
     const wA: number[] = []
-    const order = ['footway', 'service', 'pedestrian', 'residential', 'unclassified', 'tertiary', 'secondary', 'primary', 'trunk', 'motorway', 'rail']
+    const order = [
+      'footway',
+      'service',
+      'pedestrian',
+      'residential',
+      'unclassified',
+      'tertiary',
+      'secondary',
+      'primary',
+      'trunk',
+      'motorway',
+      'rail',
+    ]
     // roads are cut where they would run under the stadium / forecourt
     const coast = coastChain(osm.s)
     const pieces: Piece[] = []
     const mk = (c: string, p: number[], o?: number): Piece => {
       let near = Infinity
-      if (c !== 'footway' && c !== 'service' && c !== 'residential') for (let i = 0; i < p.length; i += 2) near = Math.min(near, distToChain(p[i], p[i + 1], coast))
+      if (c !== 'footway' && c !== 'service' && c !== 'residential')
+        for (let i = 0; i < p.length; i += 2)
+          near = Math.min(near, distToChain(p[i], p[i + 1], coast))
       const ow = !!o && c in OW_W
-      return { c, p, ow, w: ow ? OW_W[c] : ROAD_W[c] ?? 5, m: near < 90 }
+      return { c, p, ow, w: ow ? OW_W[c] : (ROAD_W[c] ?? 5), m: near < 90 }
     }
     for (const r of osm.r) {
       if (r.c === 'rail') continue // rails get their own renderer
@@ -230,7 +332,20 @@ export function City() {
       if (cur.length >= 4) pieces.push(mk(r.c, cur, r.o))
     }
     for (const r of pieces.sort((a, b) => order.indexOf(a.c) - order.indexOf(b.c))) {
-      ribbon(r.p, r.w, 0.06, new Color(ROAD_C[r.c] ?? '#74747c'), ROAD_LIT[r.c] ?? 0.3, r.ow, pos, col, litA, sA, uA, wA)
+      ribbon(
+        r.p,
+        r.w,
+        0.06,
+        new Color(ROAD_C[r.c] ?? '#74747c'),
+        ROAD_LIT[r.c] ?? 0.3,
+        r.ow,
+        pos,
+        col,
+        litA,
+        sA,
+        uA,
+        wA,
+      )
     }
     const roads = new BufferGeometry()
     roads.setAttribute('position', new Float32BufferAttribute(pos, 3))
@@ -241,15 +356,53 @@ export function City() {
     roads.setAttribute('rw', new Float32BufferAttribute(wA, 1))
     roads.computeVertexNormals()
 
-    const parks = mergeGeometries(osm.g.filter((p) => !isInfillPark(p.p)).map((p) => (inside(p.p, FOOT) ? trimToForecourt(p.p, CLEAR + 4) : p.p)).filter((p): p is number[] => !!p).map((p) => new ShapeGeometry(toShape(p)).rotateX(-Math.PI / 2)).map((g) => { g.deleteAttribute('uv'); return g.toNonIndexed() }), false)
-    const fields = mergeGeometries(osm.p.filter((f) => !inside(f.p, FOOT)).map((f) => new ShapeGeometry(toShape(f.p)).rotateX(-Math.PI / 2)).map((g) => { g.deleteAttribute('uv'); return g.toNonIndexed() }), false)
+    const parks = mergeGeometries(
+      osm.g
+        .filter((p) => !isInfillPark(p.p))
+        .map((p) => (inside(p.p, FOOT) ? trimToForecourt(p.p, CLEAR + 4) : p.p))
+        .filter((p): p is number[] => !!p)
+        .map((p) => new ShapeGeometry(toShape(p)).rotateX(-Math.PI / 2))
+        .map((g) => {
+          g.deleteAttribute('uv')
+          return g.toNonIndexed()
+        }),
+      false,
+    )
+    const fields = mergeGeometries(
+      osm.p
+        .filter((f) => !inside(f.p, FOOT))
+        .map((f) => new ShapeGeometry(toShape(f.p)).rotateX(-Math.PI / 2))
+        .map((g) => {
+          g.deleteAttribute('uv')
+          return g.toNonIndexed()
+        }),
+      false,
+    )
     const strips = mergeGeometries(
-      osm.p.filter((f) => !inside(f.p, FOOT)).map((f) => new PlaneGeometry(3.05, 20.12).rotateX(-Math.PI / 2).rotateY(Math.PI / 2 - f.a).translate(f.c[0], 0.06, f.c[1])).map((g) => { g.deleteAttribute('uv'); return g.toNonIndexed() }),
+      osm.p
+        .filter((f) => !inside(f.p, FOOT))
+        .map((f) =>
+          new PlaneGeometry(3.05, 20.12)
+            .rotateX(-Math.PI / 2)
+            .rotateY(Math.PI / 2 - f.a)
+            .translate(f.c[0], 0.06, f.c[1]),
+        )
+        .map((g) => {
+          g.deleteAttribute('uv')
+          return g.toNonIndexed()
+        }),
       false,
     )
     // street lamps along the larger roads, alternating sides
     const lamps: number[] = []
-    const lampSpacing: Record<string, number> = { motorway: 36, trunk: 36, primary: 32, secondary: 34, tertiary: 40, residential: 52 }
+    const lampSpacing: Record<string, number> = {
+      motorway: 36,
+      trunk: 36,
+      primary: 32,
+      secondary: 34,
+      tertiary: 40,
+      residential: 52,
+    }
     for (const r of pieces) {
       const sp = r.m ? 18 : lampSpacing[r.c]
       if (!sp) continue
@@ -263,7 +416,11 @@ export function City() {
         for (; acc < len; acc += sp, side = -side) {
           const f = acc / len
           const off = (r.w / 2 + 1.2) * side
-          lamps.push(r.p[i] + dx * f + (-dz / len) * off, 6.5, r.p[i + 1] + dz * f + (dx / len) * off)
+          lamps.push(
+            r.p[i] + dx * f + (-dz / len) * off,
+            6.5,
+            r.p[i + 1] + dz * f + (dx / len) * off,
+          )
         }
         acc -= len
       }
@@ -283,10 +440,19 @@ export function City() {
       sh.uniforms.uNight = { value: 0 }
       b.userData.sh = sh
       sh.vertexShader = sh.vertexShader
-        .replace('#include <common>', '#include <common>\nattribute float seed;\nvarying float vSeed;\nvarying vec3 vWP;\nvarying vec3 vWN;')
-        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvSeed = seed; vWP = (modelMatrix * vec4(position, 1.0)).xyz; vWN = normalize(mat3(modelMatrix) * normal);')
+        .replace(
+          '#include <common>',
+          '#include <common>\nattribute float seed;\nvarying float vSeed;\nvarying vec3 vWP;\nvarying vec3 vWN;',
+        )
+        .replace(
+          '#include <begin_vertex>',
+          '#include <begin_vertex>\nvSeed = seed; vWP = (modelMatrix * vec4(position, 1.0)).xyz; vWN = normalize(mat3(modelMatrix) * normal);',
+        )
       sh.fragmentShader = sh.fragmentShader
-        .replace('#include <common>', '#include <common>\nuniform float uNight; varying float vSeed; varying vec3 vWP; varying vec3 vWN;\nfloat h21(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }')
+        .replace(
+          '#include <common>',
+          '#include <common>\nuniform float uNight; varying float vSeed; varying vec3 vWP; varying vec3 vWN;\nfloat h21(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }',
+        )
         .replace(
           '#include <emissivemap_fragment>',
           `#include <emissivemap_fragment>
@@ -302,15 +468,29 @@ export function City() {
         )
     }
     // Roads glow warm under streetlights: whole carriageway lit, brighter in pools around each lamp.
-    const roadMat = new MeshStandardMaterial({ vertexColors: true, roughness: 0.85, side: DoubleSide, depthWrite: false })
+    const roadMat = new MeshStandardMaterial({
+      vertexColors: true,
+      roughness: 0.85,
+      side: DoubleSide,
+      depthWrite: false,
+    })
     roadMat.onBeforeCompile = (sh) => {
       sh.uniforms.uNight = { value: 0 }
       roadMat.userData.sh = sh
       sh.vertexShader = sh.vertexShader
-        .replace('#include <common>', '#include <common>\nattribute float rlit;\nattribute float rs;\nattribute float ru;\nattribute float rw;\nvarying float vLit;\nvarying float vS;\nvarying float vU;\nvarying float vW;')
-        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvLit = rlit; vS = rs; vU = ru; vW = rw;')
+        .replace(
+          '#include <common>',
+          '#include <common>\nattribute float rlit;\nattribute float rs;\nattribute float ru;\nattribute float rw;\nvarying float vLit;\nvarying float vS;\nvarying float vU;\nvarying float vW;',
+        )
+        .replace(
+          '#include <begin_vertex>',
+          '#include <begin_vertex>\nvLit = rlit; vS = rs; vU = ru; vW = rw;',
+        )
       sh.fragmentShader = sh.fragmentShader
-        .replace('#include <common>', '#include <common>\nuniform float uNight; varying float vLit; varying float vS; varying float vU; varying float vW;')
+        .replace(
+          '#include <common>',
+          '#include <common>\nuniform float uNight; varying float vLit; varying float vS; varying float vU; varying float vW;',
+        )
         .replace(
           '#include <color_fragment>',
           `#include <color_fragment>
@@ -342,13 +522,25 @@ export function City() {
           totalEmissiveRadiance += vec3(1.0, 0.62, 0.28) * vLit * uNight * pool * 0.42;`,
         )
     }
-    const sea = new MeshStandardMaterial({ color: '#2d6f9f', emissive: '#15405f', emissiveIntensity: 0.5, roughness: 0.9, metalness: 0, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 })
+    const sea = new MeshStandardMaterial({
+      color: '#2d6f9f',
+      emissive: '#15405f',
+      emissiveIntensity: 0.5,
+      roughness: 0.9,
+      metalness: 0,
+      polygonOffset: true,
+      polygonOffsetFactor: -1,
+      polygonOffsetUnits: -1,
+    })
     sea.onBeforeCompile = (sh) => {
       sh.uniforms.uTime = { value: 0 }
       sea.userData.sh = sh
       sh.vertexShader = sh.vertexShader
         .replace('#include <common>', '#include <common>\nvarying vec3 vWP;')
-        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvWP = (modelMatrix * vec4(position, 1.0)).xyz;')
+        .replace(
+          '#include <begin_vertex>',
+          '#include <begin_vertex>\nvWP = (modelMatrix * vec4(position, 1.0)).xyz;',
+        )
       sh.fragmentShader = sh.fragmentShader
         .replace('#include <common>', '#include <common>\nuniform float uTime; varying vec3 vWP;')
         .replace(
@@ -377,11 +569,35 @@ export function City() {
     }
     return {
       b,
-      plaza: new MeshStandardMaterial({ color: '#9a968a', roughness: 1, polygonOffset: true, polygonOffsetFactor: -5, polygonOffsetUnits: -5 }),
+      plaza: new MeshStandardMaterial({
+        color: '#9a968a',
+        roughness: 1,
+        polygonOffset: true,
+        polygonOffsetFactor: -5,
+        polygonOffsetUnits: -5,
+      }),
       r: roadMat,
-      p: new MeshStandardMaterial({ color: '#5f8f4f', roughness: 1, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 }),
-      f: new MeshStandardMaterial({ color: '#4f9d45', roughness: 1, polygonOffset: true, polygonOffsetFactor: -1.5, polygonOffsetUnits: -1.5 }),
-      t: new MeshStandardMaterial({ color: '#cdb887', roughness: 1, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3 }),
+      p: new MeshStandardMaterial({
+        color: '#5f8f4f',
+        roughness: 1,
+        polygonOffset: true,
+        polygonOffsetFactor: -1,
+        polygonOffsetUnits: -1,
+      }),
+      f: new MeshStandardMaterial({
+        color: '#4f9d45',
+        roughness: 1,
+        polygonOffset: true,
+        polygonOffsetFactor: -1.5,
+        polygonOffsetUnits: -1.5,
+      }),
+      t: new MeshStandardMaterial({
+        color: '#cdb887',
+        roughness: 1,
+        polygonOffset: true,
+        polygonOffsetFactor: -3,
+        polygonOffsetUnits: -3,
+      }),
       s: sea,
     }
   }, [])
@@ -400,7 +616,15 @@ export function City() {
 
   const lampMats = useMemo(
     () => ({
-      head: new PointsMaterial({ map: glowTexture, color: '#ffb560', size: 5, transparent: true, opacity: 0, blending: AdditiveBlending, depthWrite: false }),
+      head: new PointsMaterial({
+        map: glowTexture,
+        color: '#ffb560',
+        size: 5,
+        transparent: true,
+        opacity: 0,
+        blending: AdditiveBlending,
+        depthWrite: false,
+      }),
     }),
     [],
   )

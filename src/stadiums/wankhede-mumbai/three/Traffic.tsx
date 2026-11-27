@@ -19,10 +19,37 @@ import { glowTexture, live } from './Environment'
 type Kind = 'car' | 'taxi' | 'bus' | 'auto'
 const KINDS: Kind[] = ['car', 'taxi', 'bus', 'auto']
 const LENGTH: Record<Kind, number> = { car: 4.2, taxi: 4.2, bus: 10.5, auto: 2.7 }
-const SPEED: Record<Kind, [number, number]> = { car: [7, 12.5], taxi: [6, 11], bus: [4.5, 8], auto: [5, 8.5] }
+const SPEED: Record<Kind, [number, number]> = {
+  car: [7, 12.5],
+  taxi: [6, 11],
+  bus: [4.5, 8],
+  auto: [5, 8.5],
+}
 /** metres between vehicles per lane; sea-front roads (Marine Drive) are much busier */
-const SPACING: Record<string, number> = { motorway: 27, trunk: 30, primary: 29, secondary: 35, tertiary: 46, residential: 76 }
-const CAR_COLORS = ['#d62828', '#1f6feb', '#f4f4f4', '#f2b705', '#2a9d5c', '#ff7b00', '#c0c4cc', '#8e44ad', '#00a8a8', '#e84393', '#f4f4f4', '#d62828', '#1f6feb', '#2b2f36'].map((c) => new Color(c))
+const SPACING: Record<string, number> = {
+  motorway: 27,
+  trunk: 30,
+  primary: 29,
+  secondary: 35,
+  tertiary: 46,
+  residential: 76,
+}
+const CAR_COLORS = [
+  '#d62828',
+  '#1f6feb',
+  '#f4f4f4',
+  '#f2b705',
+  '#2a9d5c',
+  '#ff7b00',
+  '#c0c4cc',
+  '#8e44ad',
+  '#00a8a8',
+  '#e84393',
+  '#f4f4f4',
+  '#d62828',
+  '#1f6feb',
+  '#2b2f36',
+].map((c) => new Color(c))
 const MAX_VEHICLES = 5200
 /** a lane end within this distance of another lane's start, heading the same way, continues onto it */
 const JOIN = 16
@@ -33,10 +60,28 @@ const MINGAP = 1.5
 const CELL = 16
 
 /** do two oriented boxes (centre, unit heading, half length, half width) overlap? */
-function overlap(ax: number, az: number, ahx: number, ahz: number, al: number, aw: number, bx: number, bz: number, bhx: number, bhz: number, bl: number, bw: number) {
+function overlap(
+  ax: number,
+  az: number,
+  ahx: number,
+  ahz: number,
+  al: number,
+  aw: number,
+  bx: number,
+  bz: number,
+  bhx: number,
+  bhz: number,
+  bl: number,
+  bw: number,
+) {
   const dx = bx - ax
   const dz = bz - az
-  for (const [ux, uz] of [[ahx, ahz], [-ahz, ahx], [bhx, bhz], [-bhz, bhx]]) {
+  for (const [ux, uz] of [
+    [ahx, ahz],
+    [-ahz, ahx],
+    [bhx, bhz],
+    [-bhz, bhx],
+  ]) {
     const ra = al * Math.abs(ahx * ux + ahz * uz) + aw * Math.abs(-ahz * ux + ahx * uz)
     const rb = bl * Math.abs(bhx * ux + bhz * uz) + bw * Math.abs(-bhz * ux + bhx * uz)
     if (Math.abs(dx * ux + dz * uz) > ra + rb) return false
@@ -46,17 +91,41 @@ function overlap(ax: number, az: number, ahx: number, ahz: number, al: number, a
 
 function part(w: number, h: number, l: number, x: number, y: number, z: number, shade: number) {
   const g = new BoxGeometry(w, h, l).translate(x, y, z).toNonIndexed()
-  g.setAttribute('color', new Float32BufferAttribute(new Array(g.attributes.position.count * 3).fill(shade), 3))
+  g.setAttribute(
+    'color',
+    new Float32BufferAttribute(new Array(g.attributes.position.count * 3).fill(shade), 3),
+  )
   return g
 }
 // Local +z is the direction of travel. Vertex colour 1 takes the per-vehicle tint; darker parts stay dark.
 const GEO: Record<Kind, BufferGeometry> = {
-  car: mergeGeometries([part(1.8, 0.75, 4.2, 0, 0.7, 0, 1), part(1.6, 0.6, 2.2, 0, 1.35, -0.2, 0.18), part(1.82, 0.25, 4.0, 0, 0.3, 0, 0.1)]),
-  taxi: mergeGeometries([part(1.8, 0.75, 4.2, 0, 0.7, 0, 0.03), part(1.6, 0.62, 2.2, 0, 1.36, -0.2, 1), part(1.82, 0.25, 4.0, 0, 0.3, 0, 0.03)]),
-  bus: mergeGeometries([part(2.6, 3.1, 10.5, 0, 1.9, 0, 1), part(2.62, 0.9, 9.6, 0, 2.5, 0, 0.16), part(2.4, 0.15, 10.2, 0, 3.5, 0, 0.9)]),
-  auto: mergeGeometries([part(1.3, 0.9, 2.7, 0, 0.7, 0, 0.1), part(1.4, 0.12, 2.2, 0, 1.75, -0.1, 1), part(1.25, 0.8, 0.9, 0, 1.2, 0.8, 0.2)]),
+  car: mergeGeometries([
+    part(1.8, 0.75, 4.2, 0, 0.7, 0, 1),
+    part(1.6, 0.6, 2.2, 0, 1.35, -0.2, 0.18),
+    part(1.82, 0.25, 4.0, 0, 0.3, 0, 0.1),
+  ]),
+  taxi: mergeGeometries([
+    part(1.8, 0.75, 4.2, 0, 0.7, 0, 0.03),
+    part(1.6, 0.62, 2.2, 0, 1.36, -0.2, 1),
+    part(1.82, 0.25, 4.0, 0, 0.3, 0, 0.03),
+  ]),
+  bus: mergeGeometries([
+    part(2.6, 3.1, 10.5, 0, 1.9, 0, 1),
+    part(2.62, 0.9, 9.6, 0, 2.5, 0, 0.16),
+    part(2.4, 0.15, 10.2, 0, 3.5, 0, 0.9),
+  ]),
+  auto: mergeGeometries([
+    part(1.3, 0.9, 2.7, 0, 0.7, 0, 0.1),
+    part(1.4, 0.12, 2.2, 0, 1.75, -0.1, 1),
+    part(1.25, 0.8, 0.9, 0, 1.2, 0.8, 0.2),
+  ]),
 }
-const TINT: Record<Kind, Color | null> = { car: null, taxi: new Color('#ffc400'), bus: new Color('#c8202f'), auto: new Color('#f2c230') }
+const TINT: Record<Kind, Color | null> = {
+  car: null,
+  taxi: new Color('#ffc400'),
+  bus: new Color('#c8202f'),
+  auto: new Color('#f2c230'),
+}
 
 interface Lane {
   pts: number[]
@@ -137,7 +206,8 @@ function laneFor(p: number[], reverse: boolean, offset: number): Lane {
     pts.push(p[k * 2] + (dz / l) * offset, p[k * 2 + 1] + (-dx / l) * offset)
   })
   const cum = [0]
-  for (let i = 1; i < n; i++) cum.push(cum[i - 1] + Math.hypot(pts[i * 2] - pts[i * 2 - 2], pts[i * 2 + 1] - pts[i * 2 - 1]))
+  for (let i = 1; i < n; i++)
+    cum.push(cum[i - 1] + Math.hypot(pts[i * 2] - pts[i * 2 - 2], pts[i * 2 + 1] - pts[i * 2 - 1]))
   return { pts, cum, len: cum[n - 1], succ: [], cars: [], sib: [] }
 }
 
@@ -174,7 +244,8 @@ function connect(lanes: Lane[]) {
           if (c === l || c === l.pair || Math.hypot(c.pts[0] - ex, c.pts[1] - ez) > JOIN) continue
           const sx = c.pts[2] - c.pts[0]
           const sz = c.pts[3] - c.pts[1]
-          if ((dx * sx + dz * sz) / (dl * (Math.hypot(sx, sz) || 1)) > 0.45 && l.succ.length < 4) l.succ.push(c)
+          if ((dx * sx + dz * sz) / (dl * (Math.hypot(sx, sz) || 1)) > 0.45 && l.succ.length < 4)
+            l.succ.push(c)
         }
       }
     }
@@ -185,14 +256,28 @@ function connect(lanes: Lane[]) {
 const stuckLimit = (v: Vehicle) => 1.2 + (v.idx % 4) * 0.2
 const carSelf = { value: 0 }
 const byS = (a: Vehicle, b: Vehicle) => a.s - b.s
-const cellKey = (x: number, z: number) => ((Math.floor(x / CELL) + 2048) << 12) + Math.floor(z / CELL) + 2048
+const cellKey = (x: number, z: number) =>
+  ((Math.floor(x / CELL) + 2048) << 12) + Math.floor(z / CELL) + 2048
 
 /** is another visible vehicle inside this box? */
-function occupied(grid: Map<number, Vehicle[]>, x: number, z: number, hx: number, hz: number, hl: number, hw: number, skip: Vehicle) {
+function occupied(
+  grid: Map<number, Vehicle[]>,
+  x: number,
+  z: number,
+  hx: number,
+  hz: number,
+  hl: number,
+  hw: number,
+  skip: Vehicle,
+) {
   for (let i = -1; i <= 1; i++) {
     for (let j = -1; j <= 1; j++) {
       for (const u of grid.get(cellKey(x + i * CELL, z + j * CELL)) ?? []) {
-        if (u !== skip && overlap(x, z, hx, hz, hl, hw, u.lx, u.lz, u.hx, u.hz, HL[u.kind], HW[u.kind])) return true
+        if (
+          u !== skip &&
+          overlap(x, z, hx, hz, hl, hw, u.lx, u.lz, u.hx, u.hz, HL[u.kind], HW[u.kind])
+        )
+          return true
       }
     }
   }
@@ -224,7 +309,9 @@ export function Traffic({ pieces }: { pieces: Piece[] }) {
       // lanes: one-way carriageways are filled across their width, two-way roads drive on the left of each direction
       const half = pc.ow ? pc.w : pc.w / 2
       const lanes = Math.max(1, Math.round(half / 3.4))
-      const offsets = Array.from({ length: lanes }, (_, i) => (pc.ow ? (i - (lanes - 1) / 2) * (pc.w / lanes) : (i + 0.5) * (half / lanes)))
+      const offsets = Array.from({ length: lanes }, (_, i) =>
+        pc.ow ? (i - (lanes - 1) / 2) * (pc.w / lanes) : (i + 0.5) * (half / lanes),
+      )
       const fwd: Lane[] = []
       const rev: Lane[] = []
       for (const reverse of pc.ow ? [false] : [false, true]) {
@@ -249,7 +336,39 @@ export function Traffic({ pieces }: { pieces: Piece[] }) {
           const kind: Kind = q < 0.72 ? 'car' : q < 0.86 ? 'taxi' : q < 0.89 ? 'bus' : 'auto' // mostly cars, only a few buses
           const [lo, hi] = SPEED[kind]
           const speed = lo + r() * (hi - lo)
-          const v: Vehicle = { lane, s: ((i + r() * 0.3) / n) * lane.len, speed, cur: speed, idx: vs.length, k: 0, nl: null, gap: Infinity, yield: false, stuck: 0, hx: 0, hz: 1, nx: 0, nz: 0, nhx: 0, nhz: 1, pl: lane, ps: 0, pseg: 0, pnl: null, pbx: 0, pbz: 0, seg: 0, kind, slot: counts[kind]++, sc: 1, state: 'run', bx: 0, bz: 0, lx: 0, lz: 0 }
+          const v: Vehicle = {
+            lane,
+            s: ((i + r() * 0.3) / n) * lane.len,
+            speed,
+            cur: speed,
+            idx: vs.length,
+            k: 0,
+            nl: null,
+            gap: Infinity,
+            yield: false,
+            stuck: 0,
+            hx: 0,
+            hz: 1,
+            nx: 0,
+            nz: 0,
+            nhx: 0,
+            nhz: 1,
+            pl: lane,
+            ps: 0,
+            pseg: 0,
+            pnl: null,
+            pbx: 0,
+            pbz: 0,
+            seg: 0,
+            kind,
+            slot: counts[kind]++,
+            sc: 1,
+            state: 'run',
+            bx: 0,
+            bz: 0,
+            lx: 0,
+            lz: 0,
+          }
           const p = place(v)
           v.lx = p.x
           v.lz = p.z
@@ -273,7 +392,12 @@ export function Traffic({ pieces }: { pieces: Piece[] }) {
     return { vehicles: vs, counts, lanes: lanesAll }
   }, [pieces])
 
-  const meshes = useRef<Record<Kind, InstancedMesh | null>>({ car: null, taxi: null, bus: null, auto: null })
+  const meshes = useRef<Record<Kind, InstancedMesh | null>>({
+    car: null,
+    taxi: null,
+    bus: null,
+    auto: null,
+  })
   const lights = useRef<Points>(null)
   const mats = useMemo(
     () => ({
@@ -284,11 +408,22 @@ export function Traffic({ pieces }: { pieces: Piece[] }) {
           sh.uniforms.uSelf = carSelf
           sh.fragmentShader = sh.fragmentShader
             .replace('#include <common>', '#include <common>\nuniform float uSelf;')
-            .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\ntotalEmissiveRadiance += diffuseColor.rgb * uSelf;')
+            .replace(
+              '#include <emissivemap_fragment>',
+              '#include <emissivemap_fragment>\ntotalEmissiveRadiance += diffuseColor.rgb * uSelf;',
+            )
         }
         return m
       })(),
-      glow: new PointsMaterial({ map: glowTexture, size: 2.4, vertexColors: true, transparent: true, opacity: 0, blending: AdditiveBlending, depthWrite: false }),
+      glow: new PointsMaterial({
+        map: glowTexture,
+        size: 2.4,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0,
+        blending: AdditiveBlending,
+        depthWrite: false,
+      }),
     }),
     [],
   )
@@ -360,12 +495,43 @@ export function Traffic({ pieces }: { pieces: Piece[] }) {
         for (let j = -1; j <= 1 && !block; j++) {
           for (const u of grid.get(((cx0 + i + 2048) << 12) + cz0 + j + 2048) ?? []) {
             if (u === v || u.lane === v.lane || u.lane === v.nl) continue
-            if (!overlap(cx, cz, v.hx, v.hz, hl, HW[v.kind] + 0.1, u.lx, u.lz, u.hx, u.hz, HL[u.kind], HW[u.kind] + 0.1)) continue
+            if (
+              !overlap(
+                cx,
+                cz,
+                v.hx,
+                v.hz,
+                hl,
+                HW[v.kind] + 0.1,
+                u.lx,
+                u.lz,
+                u.hx,
+                u.hz,
+                HL[u.kind],
+                HW[u.kind] + 0.1,
+              )
+            )
+              continue
             const vu = v.hx * (u.lx - v.lx) + v.hz * (u.lz - v.lz) > 0
             const uv = u.hx * (v.lx - u.lx) + u.hz * (v.lz - u.lz) > 0
             const facing = v.hx * u.hx + v.hz * u.hz < -0.3 // head-on: neither can go round, so both wait
             // priority goes to the lower index, but never drive into a car that is standing in the way
-            const touching = u.cur < 0.5 && overlap(v.lx, v.lz, v.hx, v.hz, HL[v.kind], HW[v.kind], u.lx, u.lz, u.hx, u.hz, HL[u.kind], HW[u.kind])
+            const touching =
+              u.cur < 0.5 &&
+              overlap(
+                v.lx,
+                v.lz,
+                v.hx,
+                v.hz,
+                HL[v.kind],
+                HW[v.kind],
+                u.lx,
+                u.lz,
+                u.hx,
+                u.hz,
+                HL[u.kind],
+                HW[u.kind],
+              )
             if (vu && (facing || !uv || v.idx > u.idx || touching)) {
               block = true
               break
@@ -387,7 +553,8 @@ export function Traffic({ pieces }: { pieces: Piece[] }) {
         const room = Math.max(0, v.gap)
         // slow down early enough to stop short of the car ahead, never move into it
         const target = v.yield ? 0 : Math.min(v.speed, room * 2.5)
-        v.cur = target < v.cur ? Math.max(target, v.cur - 25 * dt) : Math.min(target, v.cur + 5 * dt)
+        v.cur =
+          target < v.cur ? Math.max(target, v.cur - 25 * dt) : Math.min(target, v.cur + 5 * dt)
         v.s += v.yield ? 0 : Math.min(v.cur * dt, room)
         v.stuck = v.cur < 0.5 ? v.stuck + dt : 0
         // never sit still: first try the next lane over, and if that fails fade out and reappear on a free road
@@ -465,7 +632,23 @@ export function Traffic({ pieces }: { pieces: Piece[] }) {
         for (let i = -1; i <= 1 && !hit; i++) {
           for (let j = -1; j <= 1 && !hit; j++) {
             for (const u of grid.get(cellKey(v.nx + i * CELL, v.nz + j * CELL)) ?? []) {
-              if (u !== v && overlap(v.nx, v.nz, v.nhx, v.nhz, HL[v.kind], HW[v.kind] + 0.1, u.lx, u.lz, u.hx, u.hz, HL[u.kind], HW[u.kind] + 0.1)) {
+              if (
+                u !== v &&
+                overlap(
+                  v.nx,
+                  v.nz,
+                  v.nhx,
+                  v.nhz,
+                  HL[v.kind],
+                  HW[v.kind] + 0.1,
+                  u.lx,
+                  u.lz,
+                  u.hx,
+                  u.hz,
+                  HL[u.kind],
+                  HW[u.kind] + 0.1,
+                )
+              ) {
                 hit = true
                 break
               }
@@ -505,7 +688,8 @@ export function Traffic({ pieces }: { pieces: Piece[] }) {
       const h = (LENGTH[v.kind] / 2) * v.sc
       lp.set([x + v.hx * h, 0.75, z + v.hz * h, x - v.hx * h, 0.75, z - v.hz * h], i * 6)
     })
-    for (const k of KINDS) if (meshes.current[k]) meshes.current[k]!.instanceMatrix.needsUpdate = true
+    for (const k of KINDS)
+      if (meshes.current[k]) meshes.current[k]!.instanceMatrix.needsUpdate = true
     lightGeo.attributes.position.needsUpdate = true
     const night = Math.min(1, Math.max(0, (live.flood - 0.1) / 0.5))
     carSelf.value = night * 0.3
@@ -518,10 +702,22 @@ export function Traffic({ pieces }: { pieces: Piece[] }) {
     <group>
       {KINDS.map((k) =>
         counts[k] ? (
-          <instancedMesh key={k} ref={(m) => void (meshes.current[k] = m)} args={[GEO[k], mats.body, counts[k]]} frustumCulled={false} raycast={() => {}} />
+          <instancedMesh
+            key={k}
+            ref={(m) => void (meshes.current[k] = m)}
+            args={[GEO[k], mats.body, counts[k]]}
+            frustumCulled={false}
+            raycast={() => {}}
+          />
         ) : null,
       )}
-      <points ref={lights} geometry={lightGeo} material={mats.glow} frustumCulled={false} raycast={() => {}} />
+      <points
+        ref={lights}
+        geometry={lightGeo}
+        material={mats.glow}
+        frustumCulled={false}
+        raycast={() => {}}
+      />
     </group>
   )
 }

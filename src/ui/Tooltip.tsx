@@ -33,9 +33,7 @@ export function Tooltip() {
         <div className="font-semibold">
           Block {i.block} · Row {i.row} · Seat {i.num}
         </div>
-        <div className="text-mute">
-          {i.tier}
-        </div>
+        <div className="text-mute">{i.tier}</div>
       </>
     )
   } else if (blk && open !== null) {
@@ -44,7 +42,9 @@ export function Tooltip() {
         <div className="font-semibold">
           Block {blockName(blk.block, open)} · {TIER_NAMES[blk.tier]}
         </div>
-        <div className="text-mute">{SEATS[open].blockTotal[blk.tier][blk.block]} seats · click to zoom in</div>
+        <div className="text-mute">
+          {SEATS[open].blockTotal[blk.tier][blk.block]} seats · click to zoom in
+        </div>
       </>
     )
   } else if (stand !== null) {
@@ -58,7 +58,9 @@ export function Tooltip() {
   }
   return (
     <div ref={el} className="pointer-events-none fixed top-0 left-0 z-20">
-      {body && <div className="glass rounded-lg px-3 py-2 text-xs whitespace-nowrap shadow-lg">{body}</div>}
+      {body && (
+        <div className="glass rounded-lg px-3 py-2 text-xs whitespace-nowrap shadow-lg">{body}</div>
+      )}
     </div>
   )
 }

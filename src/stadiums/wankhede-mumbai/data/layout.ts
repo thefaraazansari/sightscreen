@@ -1,4 +1,13 @@
-import { BufferGeometry, Color, CylinderGeometry, Float32BufferAttribute, Quaternion, ShapeUtils, Vector2, Vector3 } from 'three'
+import {
+  BufferGeometry,
+  Color,
+  CylinderGeometry,
+  Float32BufferAttribute,
+  Quaternion,
+  ShapeUtils,
+  Vector2,
+  Vector3,
+} from 'three'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 
 /** Playing field semi-axes (m), fitted to Wankhede's mapped outline (≈ circular, ~140 m across). */
@@ -32,14 +41,47 @@ const GAP = 1.75
 const defs: Omit<Stand, 'id' | 't0' | 't1'>[] = [
   { name: 'MCA Pavilion', firstBlock: 0, color: '#e8a3b4', booked: 0.8, blocks: 4, roof: true },
   { name: 'Grand Stand', firstBlock: 0, color: '#f4c29b', booked: 0.7, blocks: 4, roof: true },
-  { name: 'Vijay Merchant Stand', firstBlock: 5, color: '#bfa8e8', booked: 0.4, blocks: 7, roof: true },
+  {
+    name: 'Vijay Merchant Stand',
+    firstBlock: 5,
+    color: '#bfa8e8',
+    booked: 0.4,
+    blocks: 7,
+    roof: true,
+  },
   { name: 'Garware Stand', firstBlock: 0, color: '#f1de9a', booked: 0.65, blocks: 6, roof: true },
-  { name: 'Sunil Gavaskar Stand', firstBlock: 0, color: '#9fdbe8', booked: 0.5, blocks: 6, roof: true },
-  { name: 'Dilip Vengsarkar Stand', firstBlock: 7, color: '#a9e0bf', booked: 0.45, blocks: 7, roof: true },
-  { name: 'Sachin Tendulkar Stand', firstBlock: 0, color: '#9fc2f0', booked: 0.55, blocks: 7, roof: true },
+  {
+    name: 'Sunil Gavaskar Stand',
+    firstBlock: 0,
+    color: '#9fdbe8',
+    booked: 0.5,
+    blocks: 6,
+    roof: true,
+  },
+  {
+    name: 'Dilip Vengsarkar Stand',
+    firstBlock: 7,
+    color: '#a9e0bf',
+    booked: 0.45,
+    blocks: 7,
+    roof: true,
+  },
+  {
+    name: 'Sachin Tendulkar Stand',
+    firstBlock: 0,
+    color: '#9fc2f0',
+    booked: 0.55,
+    blocks: 7,
+    roof: true,
+  },
   { name: 'North Stand', firstBlock: 6, color: '#f0b3d4', booked: 0.3, blocks: 7, roof: true },
 ]
-export const STANDS: Stand[] = defs.map((d, id) => ({ ...d, id, t0: bounds[id] + GAP, t1: bounds[id + 1] - GAP }))
+export const STANDS: Stand[] = defs.map((d, id) => ({
+  ...d,
+  id,
+  t0: bounds[id] + GAP,
+  t1: bounds[id + 1] - GAP,
+}))
 
 export const TIER_NAMES = ['Level 1', 'Level 2', 'Level 3'] as const
 /** Neutral moulded-plastic seat colours used in first-person view (no availability colours). */
@@ -79,7 +121,10 @@ export const ROWS: RowInfo[] = []
     }
   }
   tier(0, 12, 0.42)
-  for (const [t, rows, rise] of [[1, 12, 0.5], [2, 15, 0.62]] as const) {
+  for (const [t, rows, rise] of [
+    [1, 12, 0.5],
+    [2, 15, 0.62],
+  ] as const) {
     PROFILE.push([d + 2.5, y, DECK])
     d += 2.5
     y += 3.2
@@ -92,10 +137,21 @@ export const ROWS: RowInfo[] = []
 export const OUTER = PROFILE[PROFILE.length - 1][0]
 export const TOP = Math.max(...PROFILE.map((p) => p[1]))
 
-const ptOnStand = (d: number, t: number): [number, number] => [(A + d) * Math.cos(t), (B + d) * Math.sin(t)]
+const ptOnStand = (d: number, t: number): [number, number] => [
+  (A + d) * Math.cos(t),
+  (B + d) * Math.sin(t),
+]
 
 /** Sweep a closed 2D (d, y) profile along a stand's arc; edge i uses edgeColors[i]. */
-function sweep(prof: [number, number][], edgeColors: Color[], t0: number, t1: number, N: number, skipEdge = -1, ribbed = -1) {
+function sweep(
+  prof: [number, number][],
+  edgeColors: Color[],
+  t0: number,
+  t1: number,
+  N: number,
+  skipEdge = -1,
+  ribbed = -1,
+) {
   const pos: number[] = []
   const col: number[] = []
   const push = (d: number, y: number, t: number, c: Color) => {
@@ -111,12 +167,20 @@ function sweep(prof: [number, number][], edgeColors: Color[], t0: number, t1: nu
       const ta = t0 + ((t1 - t0) * j) / N
       const tb = t0 + ((t1 - t0) * (j + 1)) / N
       const c = i === ribbed && j % 2 ? edgeColors[i].clone().multiplyScalar(0.9) : edgeColors[i]
-      push(d0, y0, ta, c); push(d1, y1, ta, c); push(d1, y1, tb, c)
-      push(d0, y0, ta, c); push(d1, y1, tb, c); push(d0, y0, tb, c)
+      push(d0, y0, ta, c)
+      push(d1, y1, ta, c)
+      push(d1, y1, tb, c)
+      push(d0, y0, ta, c)
+      push(d1, y1, tb, c)
+      push(d0, y0, tb, c)
     }
   }
-  const tris = ShapeUtils.triangulateShape(prof.map((p) => new Vector2(p[0], p[1])), [])
-  for (const t of [t0, t1]) for (const tri of tris) for (const k of tri) push(prof[k][0], prof[k][1], t, edgeColors[0])
+  const tris = ShapeUtils.triangulateShape(
+    prof.map((p) => new Vector2(p[0], p[1])),
+    [],
+  )
+  for (const t of [t0, t1])
+    for (const tri of tris) for (const k of tri) push(prof[k][0], prof[k][1], t, edgeColors[0])
   const g = new BufferGeometry()
   g.setAttribute('position', new Float32BufferAttribute(pos, 3))
   g.setAttribute('color', new Float32BufferAttribute(col, 3))
@@ -139,8 +203,12 @@ export function buildStrip(s: Stand, k: number): BufferGeometry {
     uv.push(j / N, v)
   }
   for (let j = 0; j < N; j++) {
-    push(j, y0 + 0.2, 0); push(j + 1, y0 + 0.2, 0); push(j, y1 - 0.2, 1)
-    push(j + 1, y0 + 0.2, 0); push(j + 1, y1 - 0.2, 1); push(j, y1 - 0.2, 1)
+    push(j, y0 + 0.2, 0)
+    push(j + 1, y0 + 0.2, 0)
+    push(j, y1 - 0.2, 1)
+    push(j + 1, y0 + 0.2, 0)
+    push(j + 1, y1 - 0.2, 1)
+    push(j, y1 - 0.2, 1)
   }
   const g = new BufferGeometry()
   g.setAttribute('position', new Float32BufferAttribute(pos, 3))
@@ -166,7 +234,9 @@ export function buildTerrace(s: Stand): BufferGeometry {
   const pavDeck = new Color('#eceff4')
   const stair = new Color('#e6e1d3')
   // outer facade: pale concrete fins on top, glazed concourse band, darker base with openings
-  const facade = ['#cfcabd', '#b3aea1', '#2c3e54', '#bdb8ab', '#23252a', '#9b958a'].map((c) => new Color(c))
+  const facade = ['#cfcabd', '#b3aea1', '#2c3e54', '#bdb8ab', '#23252a', '#9b958a'].map(
+    (c) => new Color(c),
+  )
   const push = (d: number, y: number, t: number, c: Color) => {
     const [x, z] = ptOnStand(d, t)
     pos.push(x, y, z)
@@ -197,12 +267,20 @@ export function buildTerrace(s: Stand): BufferGeometry {
                       ? pavDeck
                       : pavGlass
                     : kinds[k]
-      push(d0, y0, ta, c); push(d1, y1, ta, c); push(d1, y1, tb, c)
-      push(d0, y0, ta, c); push(d1, y1, tb, c); push(d0, y0, tb, c)
+      push(d0, y0, ta, c)
+      push(d1, y1, ta, c)
+      push(d1, y1, tb, c)
+      push(d0, y0, ta, c)
+      push(d1, y1, tb, c)
+      push(d0, y0, tb, c)
     }
   }
-  const tris = ShapeUtils.triangulateShape(PROFILE.map((p) => new Vector2(p[0], p[1])), [])
-  for (const t of [t0, t1]) for (const tri of tris) for (const k of tri) push(PROFILE[k][0], PROFILE[k][1], t, kinds[0])
+  const tris = ShapeUtils.triangulateShape(
+    PROFILE.map((p) => new Vector2(p[0], p[1])),
+    [],
+  )
+  for (const t of [t0, t1])
+    for (const tri of tris) for (const k of tri) push(PROFILE[k][0], PROFILE[k][1], t, kinds[0])
   const g = new BufferGeometry()
   g.setAttribute('position', new Float32BufferAttribute(pos, 3))
   g.setAttribute('color', new Float32BufferAttribute(col, 3))
@@ -217,7 +295,10 @@ export function buildTerrace(s: Stand): BufferGeometry {
 export function buildPavilion(s: Stand): BufferGeometry {
   const rows = ROWS.filter((r) => r.tier === 0)
   const top0 = rows[0].y + 1.55 // flat parapet over the front rooms, then the roof climbs row by row
-  const prof: [number, number][] = [[1.5, 0.9], [1.5, top0]]
+  const prof: [number, number][] = [
+    [1.5, 0.9],
+    [1.5, top0],
+  ]
   const cols: Color[] = [new Color('#7fb3dc')] // glazed front
   const tread = new Color('#e9ecf1')
   const riser = new Color('#c4cad6')
@@ -243,14 +324,32 @@ const OUT_STAND = 22
 export function buildRoof(s: Stand): BufferGeometry {
   const df = OUTER - OUT_STAND
   const db = OUTER + 3
-  const prof: [number, number][] = [[df, TOP + 0.5], [db, TOP + 7.5], [db, TOP + 8.1], [df, TOP + 1.1]]
-  return sweep(prof, [new Color('#cdd2db'), new Color('#8a929e'), new Color('#f4f6f9'), new Color('#3f4650')], rad(s.t0), rad(s.t1), 24, -1, 2)
+  const prof: [number, number][] = [
+    [df, TOP + 0.5],
+    [db, TOP + 7.5],
+    [db, TOP + 8.1],
+    [df, TOP + 1.1],
+  ]
+  return sweep(
+    prof,
+    [new Color('#cdd2db'), new Color('#8a929e'), new Color('#f4f6f9'), new Color('#3f4650')],
+    rad(s.t0),
+    rad(s.t1),
+    24,
+    -1,
+    2,
+  )
 }
 
 /** Thin lighting strip along the roof's leading edge (glows at night). */
 export function buildRim(s: Stand): BufferGeometry {
   const df = OUTER - OUT_STAND
-  const prof: [number, number][] = [[df - 0.5, TOP - 0.1], [df + 0.2, TOP - 0.1], [df + 0.2, TOP + 0.4], [df - 0.5, TOP + 0.4]]
+  const prof: [number, number][] = [
+    [df - 0.5, TOP - 0.1],
+    [df + 0.2, TOP - 0.1],
+    [df + 0.2, TOP + 0.4],
+    [df - 0.5, TOP + 0.4],
+  ]
   const c = new Color('#fff4d6')
   return sweep(prof, [c, c, c, c], rad(s.t0), rad(s.t1), 24)
 }
@@ -260,7 +359,13 @@ function strut(a: Vector3, b: Vector3, r: number, c: Color) {
   const g = new CylinderGeometry(r, r, dir.length(), 5).toNonIndexed()
   g.applyQuaternion(new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), dir.normalize()))
   g.translate((a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2)
-  g.setAttribute('color', new Float32BufferAttribute(new Array(g.attributes.position.count).fill(0).flatMap(() => [c.r, c.g, c.b]), 3))
+  g.setAttribute(
+    'color',
+    new Float32BufferAttribute(
+      new Array(g.attributes.position.count).fill(0).flatMap(() => [c.r, c.g, c.b]),
+      3,
+    ),
+  )
   return g
 }
 
@@ -342,7 +447,11 @@ function rawPlan(s: Stand) {
   const dt = (rad(s.t1) - t0) / (s.blocks * SEG + 1)
   const rows = ROWS.filter((r) => !(s.pavilion && r.tier === 0))
   const plan = rows.map((r) =>
-    Array.from({ length: s.blocks }, (_, b) => Math.floor(arcLen(r.d + DEPTH * 0.55, t0 + (SEG * b + 1) * dt, t0 + (SEG * b + SEG) * dt) / SEAT_W)),
+    Array.from({ length: s.blocks }, (_, b) =>
+      Math.floor(
+        arcLen(r.d + DEPTH * 0.55, t0 + (SEG * b + 1) * dt, t0 + (SEG * b + SEG) * dt) / SEAT_W,
+      ),
+    ),
   )
   return { rows, plan }
 }
@@ -352,7 +461,10 @@ export const CAPACITY = 33108
 
 // The seats drawn are exactly the official capacity, shared between stands (and rows, and blocks) in proportion to their size.
 const RAW = STANDS.map(rawPlan)
-const STAND_TOTALS = apportion(RAW.map((r) => r.plan.flat().reduce((a, b) => a + b, 0)), CAPACITY)
+const STAND_TOTALS = apportion(
+  RAW.map((r) => r.plan.flat().reduce((a, b) => a + b, 0)),
+  CAPACITY,
+)
 const PLANS = RAW.map((r, i) => {
   const flat = apportion(r.plan.flat(), STAND_TOTALS[i])
   const blocks = STANDS[i].blocks
@@ -429,7 +541,11 @@ export const seatLabel = (stand: number, i: number) => {
   }
 }
 
-export const seatEye = (stand: number, i: number): [number, number, number] => [SEATS[stand].x[i], SEATS[stand].y[i] + 1.2, SEATS[stand].z[i]]
+export const seatEye = (stand: number, i: number): [number, number, number] => [
+  SEATS[stand].x[i],
+  SEATS[stand].y[i] + 1.2,
+  SEATS[stand].z[i],
+]
 
 /** Camera position + target framing a whole stand, or one level of it, from over the pitch. */
 export function standView(i: number, tier: number | null = null) {
@@ -441,7 +557,10 @@ export function standView(i: number, tier: number | null = null) {
   const len = Math.hypot(cx, cz)
   const dist = tier === null ? 72 : 64
   const lift = tier === null ? 34 : 30
-  return { pos: [cx - (cx / len) * dist, mid.y + lift, cz - (cz / len) * dist] as const, target: [cx, mid.y, cz] as const }
+  return {
+    pos: [cx - (cx / len) * dist, mid.y + lift, cz - (cz / len) * dist] as const,
+    target: [cx, mid.y, cz] as const,
+  }
 }
 
 const RISE = [0.42, 0.5, 0.62]
@@ -465,8 +584,12 @@ export function buildBlockPatch(s: Stand, tier: number, block: number): BufferGe
     for (let j = 0; j < 5; j++) {
       const a = ta + ((tb - ta) * j) / 5
       const b = ta + ((tb - ta) * (j + 1)) / 5
-      P(d0, y0, a); P(d1, y1, a); P(d1, y1, b)
-      P(d0, y0, a); P(d1, y1, b); P(d0, y0, b)
+      P(d0, y0, a)
+      P(d1, y1, a)
+      P(d1, y1, b)
+      P(d0, y0, a)
+      P(d1, y1, b)
+      P(d0, y0, b)
     }
   }
   for (const r of ROWS.filter((q) => q.tier === tier)) {
@@ -488,7 +611,10 @@ export function blockView(i: number, tier: number, block: number) {
   const mid = rows[Math.floor(rows.length / 2)]
   const [cx, cz] = ptOnStand(mid.d, t)
   const len = Math.hypot(cx, cz)
-  return { pos: [cx - (cx / len) * 14.5, mid.y + 6, cz - (cz / len) * 14.5] as const, target: [cx, mid.y - 1.2, cz] as const }
+  return {
+    pos: [cx - (cx / len) * 14.5, mid.y + 6, cz - (cz / len) * 14.5] as const,
+    target: [cx, mid.y - 1.2, cz] as const,
+  }
 }
 
 /** Block letter for block index b of a stand (letters are per stand, as on the ticketing sites). */
@@ -534,4 +660,5 @@ export function levelAnchor(i: number, tier: number): [number, number, number] {
   return [x, low.y + 0.6, z]
 }
 
-export const blockName = (b: number, standId: number) => String.fromCharCode(65 + STANDS[standId].firstBlock + b)
+export const blockName = (b: number, standId: number) =>
+  String.fromCharCode(65 + STANDS[standId].firstBlock + b)
