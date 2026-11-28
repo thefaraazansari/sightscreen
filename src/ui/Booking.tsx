@@ -1,27 +1,8 @@
-import { STANDS, seatLabel } from '../stadiums/current'
+import { STANDS, seatLabel, stadium } from '../stadiums/current'
 import type { SeatRef } from '../store/useStadium'
 
-/** The three sites linked for booking. Links go to each site's own pages (none accepts a per-seat deep link), so the user searches for the match there. */
-export const BOOKING_SITES = [
-  {
-    name: 'BookMyShow',
-    zoom: 1.55,
-    icon: 'https://www.google.com/s2/favicons?domain=in.bookmyshow.com&sz=128',
-    url: 'https://in.bookmyshow.com/explore/sports-mumbai',
-  },
-  {
-    name: 'District',
-    zoom: 1,
-    icon: 'https://www.google.com/s2/favicons?domain=district.in&sz=128',
-    url: 'https://www.district.in/',
-  },
-  {
-    name: 'Mumbai Indians',
-    zoom: 1.15,
-    icon: 'https://www.mumbaiindians.com/static-assets/favicons/apple-touch-icon.png',
-    url: 'https://www.mumbaiindians.com/',
-  },
-] as const
+/** The sites linked for booking. Links go to each site's own pages (none accepts a per-seat deep link), so the user searches for the match there. */
+export const BOOKING_SITES = stadium.tickets
 
 /** Details to quote on the booking site, in the stand / BLK / level style the ticketing sites use. */
 export const seatSummary = (seat: SeatRef) => {

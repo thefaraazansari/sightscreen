@@ -1,0 +1,386 @@
+{
+  "wankhede-stadium": {
+    "slug": "wankhede-stadium",
+    "name": "Wankhede Stadium",
+    "capacity": 33108,
+    "field": {
+      "a": 71,
+      "b": 69
+    },
+    "standGapDeg": 1.75,
+    "levels": [
+      {
+        "name": "Level 1",
+        "rows": 12,
+        "rise": 0.42,
+        "seatColor": "#2b5aa8"
+      },
+      {
+        "name": "Level 2",
+        "rows": 12,
+        "rise": 0.5,
+        "seatColor": "#1f4382"
+      },
+      {
+        "name": "Level 3",
+        "rows": 15,
+        "rise": 0.62,
+        "seatColor": "#3f78c4"
+      }
+    ],
+    "stands": [
+      {
+        "name": "MCA Pavilion",
+        "fromDeg": -30,
+        "toDeg": 0,
+        "color": "#e8a3b4",
+        "firstBlock": 0,
+        "blocks": 4,
+        "booked": 0.8,
+        "roof": true
+      },
+      {
+        "name": "Grand Stand",
+        "fromDeg": 0,
+        "toDeg": 30,
+        "color": "#f4c29b",
+        "firstBlock": 0,
+        "blocks": 4,
+        "booked": 0.7,
+        "roof": true
+      },
+      {
+        "name": "Vijay Merchant Stand",
+        "fromDeg": 30,
+        "toDeg": 75,
+        "color": "#bfa8e8",
+        "firstBlock": 5,
+        "blocks": 7,
+        "booked": 0.4,
+        "roof": true
+      },
+      {
+        "name": "Garware Stand",
+        "fromDeg": 75,
+        "toDeg": 120,
+        "color": "#f1de9a",
+        "firstBlock": 0,
+        "blocks": 6,
+        "booked": 0.65,
+        "roof": true
+      },
+      {
+        "name": "Sunil Gavaskar Stand",
+        "fromDeg": 120,
+        "toDeg": 170,
+        "color": "#9fdbe8",
+        "firstBlock": 0,
+        "blocks": 6,
+        "booked": 0.5,
+        "roof": true
+      },
+      {
+        "name": "Dilip Vengsarkar Stand",
+        "fromDeg": 170,
+        "toDeg": 225,
+        "color": "#a9e0bf",
+        "firstBlock": 7,
+        "blocks": 7,
+        "booked": 0.45,
+        "roof": true
+      },
+      {
+        "name": "Sachin Tendulkar Stand",
+        "fromDeg": 225,
+        "toDeg": 280,
+        "color": "#9fc2f0",
+        "firstBlock": 0,
+        "blocks": 7,
+        "booked": 0.55,
+        "roof": true
+      },
+      {
+        "name": "North Stand",
+        "fromDeg": 280,
+        "toDeg": 330,
+        "color": "#f0b3d4",
+        "firstBlock": 6,
+        "blocks": 7,
+        "booked": 0.3,
+        "roof": true
+      }
+    ],
+    "folder": "wankhede-mumbai",
+    "city": "Mumbai",
+    "country": "India",
+    "flag": "in",
+    "blurb": "The home of Mumbai Indians and the 2011 World Cup final.",
+    "listOrder": [
+      "Sachin Tendulkar Stand",
+      "North Stand",
+      "MCA Pavilion",
+      "Grand Stand",
+      "Vijay Merchant Stand",
+      "Garware Stand",
+      "Sunil Gavaskar Stand",
+      "Dilip Vengsarkar Stand"
+    ],
+    "tickets": [
+      {
+        "name": "BookMyShow",
+        "url": "https://in.bookmyshow.com/explore/sports-mumbai",
+        "icon": "https://www.google.com/s2/favicons?domain=in.bookmyshow.com&sz=128",
+        "zoom": 1.55
+      },
+      {
+        "name": "District",
+        "url": "https://www.district.in/",
+        "icon": "https://www.google.com/s2/favicons?domain=district.in&sz=128",
+        "zoom": 1
+      },
+      {
+        "name": "Mumbai Indians",
+        "url": "https://www.mumbaiindians.com/",
+        "icon": "https://www.mumbaiindians.com/static-assets/favicons/apple-touch-icon.png",
+        "zoom": 1.15
+      }
+    ],
+    "cameraZoom": 1.4,
+    "numberLocale": "en-IN"
+  },
+  "melbourne-cricket-ground": {
+    "slug": "melbourne-cricket-ground",
+    "name": "Melbourne Cricket Ground",
+    "capacity": 100024,
+    "field": {
+      "a": 82,
+      "b": 73,
+      "radii": [
+        86.8,
+        86.1,
+        85.2,
+        84.3,
+        83.0,
+        81.4,
+        80.1,
+        78.8,
+        77.3,
+        75.8,
+        74.5,
+        73.4,
+        72.5,
+        71.8,
+        71.4,
+        71.0,
+        70.8,
+        70.9,
+        70.8,
+        70.9,
+        71.1,
+        71.4,
+        72.0,
+        72.9,
+        74.0,
+        75.0,
+        76.2,
+        77.5,
+        78.8,
+        80.0,
+        81.6,
+        83.0,
+        84.7,
+        85.7,
+        86.6,
+        87.2,
+        87.5,
+        87.4,
+        87.0,
+        86.4,
+        85.5,
+        84.6,
+        83.6,
+        82.6,
+        81.6,
+        80.5,
+        79.4,
+        78.5,
+        77.7,
+        77.0,
+        76.6,
+        76.1,
+        75.9,
+        76.0,
+        76.0,
+        76.0,
+        76.2,
+        76.8,
+        77.3,
+        78.1,
+        79.0,
+        80.0,
+        80.9,
+        81.8,
+        82.7,
+        83.9,
+        85.2,
+        86.2,
+        86.8,
+        87.0,
+        87.1,
+        87.1
+      ],
+      "pitchBearing": 0
+    },
+    "towers": [
+      {
+        "x": -116.9,
+        "z": -86.8,
+        "h": 85,
+        "style": "white"
+      },
+      {
+        "x": 5.5,
+        "z": -141.7,
+        "h": 85,
+        "style": "white"
+      },
+      {
+        "x": 127.4,
+        "z": -64.6,
+        "h": 85,
+        "style": "white"
+      },
+      {
+        "x": 119.7,
+        "z": 71.2,
+        "h": 85,
+        "style": "white"
+      },
+      {
+        "x": -5.2,
+        "z": 130.9,
+        "h": 85,
+        "style": "white"
+      },
+      {
+        "x": -125.1,
+        "z": 48.7,
+        "h": 85,
+        "style": "white"
+      }
+    ],
+    "standGapDeg": 0.5,
+    "levels": [
+      {
+        "name": "Level 1",
+        "rows": 22,
+        "rise": 0.4,
+        "seatColor": "#2b5aa8"
+      },
+      {
+        "name": "Level 2",
+        "rows": 22,
+        "rise": 0.5,
+        "seatColor": "#1f4382"
+      },
+      {
+        "name": "Level 3",
+        "rows": 28,
+        "rise": 0.7,
+        "seatColor": "#3f78c4"
+      }
+    ],
+    "stands": [
+      {
+        "name": "Shane Warne Stand",
+        "fromDeg": -20,
+        "toDeg": 148,
+        "color": "#f1de9a",
+        "firstBlock": 0,
+        "blocks": 12,
+        "booked": 0.62,
+        "roof": true,
+        "roofReach": 28,
+        "masts": "props",
+        "seats": 44000,
+        "roofDrop": 5
+      },
+      {
+        "name": "Ponsford Stand",
+        "fromDeg": 148,
+        "toDeg": 198,
+        "color": "#9fc2f0",
+        "firstBlock": 0,
+        "blocks": 4,
+        "booked": 0.5,
+        "roof": true,
+        "roofReach": 28,
+        "masts": "lattice",
+        "seats": 14000,
+        "roofDrop": -5
+      },
+      {
+        "name": "MCC Members Reserve",
+        "fromDeg": 198,
+        "toDeg": 279,
+        "color": "#a9e0bf",
+        "firstBlock": 0,
+        "blocks": 7,
+        "booked": 0.7,
+        "roof": true,
+        "roofReach": 28,
+        "masts": "lattice",
+        "seats": 24024,
+        "roofDrop": -5
+      },
+      {
+        "name": "Olympic Stand",
+        "fromDeg": 279,
+        "toDeg": 340,
+        "color": "#f0b3d4",
+        "firstBlock": 0,
+        "blocks": 5,
+        "booked": 0.55,
+        "roof": true,
+        "roofReach": 28,
+        "masts": "props",
+        "seats": 18000,
+        "roofDrop": 5
+      }
+    ],
+    "folder": "melbourne-mcg",
+    "city": "Melbourne",
+    "country": "Australia",
+    "flag": "au",
+    "blurb": "The \"G\": home of the Boxing Day Test and the AFL Grand Final.",
+    "listOrder": [
+      "MCC Members Reserve",
+      "Olympic Stand",
+      "Shane Warne Stand",
+      "Ponsford Stand"
+    ],
+    "tickets": [
+      {
+        "name": "Ticketek",
+        "url": "https://premier.ticketek.com.au/",
+        "icon": "https://www.google.com/s2/favicons?domain=ticketek.com.au&sz=256",
+        "zoom": 1
+      },
+      {
+        "name": "Cricket Australia",
+        "url": "https://www.cricket.com.au/tickets",
+        "icon": "https://www.google.com/s2/favicons?domain=cricket.com.au&sz=256",
+        "zoom": 1
+      },
+      {
+        "name": "MCG",
+        "url": "https://www.mcg.org.au/",
+        "icon": "https://www.google.com/s2/favicons?domain=mcg.org.au&sz=256",
+        "zoom": 1
+      }
+    ],
+    "cameraZoom": 1.1,
+    "shortName": "MCG",
+    "numberLocale": "en-AU"
+  }
+}

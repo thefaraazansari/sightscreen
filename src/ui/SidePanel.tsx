@@ -1,12 +1,15 @@
-import { SEATS, STANDS } from '../stadiums/current'
+import { SEATS, STANDS, stadium } from '../stadiums/current'
 import { useStadium } from '../store/useStadium'
 import { PanelToggle } from './PanelToggle'
 
-const n = (x: number) => x.toLocaleString('en-IN')
+const n = (x: number) => x.toLocaleString(stadium.numberLocale)
 const total = (i: number) => SEATS[i].total.reduce((a, b) => a + b, 0)
 
-/** Sachin Tendulkar then North first, Dilip Vengsarkar Stand last. */
-const ORDER = [6, 7, 0, 1, 2, 3, 4, 5]
+/** Stand order in the list: stadiums.json `listOrder` by name, any stand it leaves out last. */
+const ORDER = [
+  ...stadium.listOrder.map((nm) => STANDS.findIndex((s) => s.name === nm)).filter((i) => i >= 0),
+  ...STANDS.map((s) => s.id).filter((i) => !stadium.listOrder.includes(STANDS[i].name)),
+]
 
 function Overview() {
   const hovered = useStadium((s) => s.hoveredStand)
@@ -73,9 +76,20 @@ export function SidePanel() {
         </h2>
       )}
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-xs font-semibold tracking-widest text-accent uppercase">
-          Wankhede Stadium · Mumbai
-        </h1>
+        {mode === 'overview' ? (
+          <h1 className="text-accent">
+            <span className="text-2xl" style={{ fontFamily: "'DM Serif Display', serif" }}>
+              {stadium.shortName ?? stadium.name}
+            </span>
+            <span className="ml-2 text-xs font-semibold tracking-widest uppercase">
+              {stadium.city}
+            </span>
+          </h1>
+        ) : (
+          <h1 className="text-xs font-semibold tracking-widest text-accent uppercase">
+            {stadium.shortName ?? stadium.name} · {stadium.city}
+          </h1>
+        )}
         {mode === 'overview' && <PanelToggle flip />}
       </div>
       <div

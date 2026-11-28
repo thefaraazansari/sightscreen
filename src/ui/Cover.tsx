@@ -1,3 +1,5 @@
+import { stadium } from '../stadiums/current'
+import { Flag, AusFlag } from './Flags'
 import { useStadium } from '../store/useStadium'
 
 const THEMES = {
@@ -35,34 +37,6 @@ const STARS = Array.from({ length: 80 }, (_, i) => ({
 }))
 
 /** The Indian tricolour, static. */
-function Flag() {
-  const spokes = Array.from({ length: 24 }, (_, i) => (i * 15 * Math.PI) / 180)
-  return (
-    <svg
-      viewBox="0 0 90 60"
-      className="w-24 rounded-[2px] shadow-md sm:w-32"
-      role="img"
-      aria-label="Flag of India"
-    >
-      <rect width="90" height="20" fill="#FF9933" />
-      <rect y="20" width="90" height="20" fill="#FFFFFF" />
-      <rect y="40" width="90" height="20" fill="#138808" />
-      <g transform="translate(45 30)" stroke="#000080" fill="none" strokeWidth="0.45">
-        <circle r="8.2" strokeWidth="0.9" />
-        {spokes.map((a, i) => (
-          <line
-            key={i}
-            x1={Math.cos(a) * 1.2}
-            y1={Math.sin(a) * 1.2}
-            x2={Math.cos(a) * 8}
-            y2={Math.sin(a) * 8}
-          />
-        ))}
-        <circle r="1.1" fill="#000080" stroke="none" />
-      </g>
-    </svg>
-  )
-}
 
 /** Soft fractal-noise cloud layer, drifting slowly. */
 function Clouds({
@@ -169,7 +143,7 @@ export function Cover() {
         className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center"
         style={{ opacity: ready ? 0 : 1, transition: 'opacity 0.8s' }}
       >
-        <Flag />
+        {stadium.flag === 'au' ? <AusFlag /> : <Flag />}
         <div
           className="mt-7 text-4xl sm:text-5xl"
           style={{
@@ -181,14 +155,14 @@ export function Cover() {
                 : '0 2px 18px rgb(0 0 0 / 0.4)',
           }}
         >
-          Wankhede Stadium
+          {stadium.name}
         </div>
         <div className="mt-3 h-px w-10 opacity-40" style={{ background: th.ink }} />
         <div
           className="mt-3 text-[11px] font-semibold tracking-[0.6em] pl-[0.6em] uppercase"
           style={{ color: th.ink }}
         >
-          Mumbai
+          {stadium.city}
         </div>
       </div>
     </div>
