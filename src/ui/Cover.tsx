@@ -1,6 +1,7 @@
 import { stadium } from '../stadiums/current'
 import { Flag, AusFlag } from './Flags'
 import { useStadium } from '../store/useStadium'
+import { CricketLine } from './CricketLine'
 
 const THEMES = {
   day: {
@@ -163,6 +164,13 @@ export function Cover() {
           style={{ color: th.ink }}
         >
           {stadium.city}
+        </div>
+        <div
+          role="status"
+          className="mt-8 text-sm font-semibold italic"
+          style={{ color: th.ink, opacity: 0.8 }}
+        >
+          <CricketLine />
         </div>
       </div>
     </div>

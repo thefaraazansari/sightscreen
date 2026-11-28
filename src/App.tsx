@@ -6,6 +6,7 @@ import { BookingLinks } from './ui/Booking'
 import { PanelToggle } from './ui/PanelToggle'
 import { SidePanel } from './ui/SidePanel'
 import { Cover } from './ui/Cover'
+import { Loading } from './ui/Loading'
 import { TimeToggle } from './ui/TimeToggle'
 import { Tooltip } from './ui/Tooltip'
 
@@ -84,7 +85,7 @@ export default function App() {
 
   return (
     <div className="relative h-full w-full overflow-hidden">
-      <Suspense fallback={null}>
+      <Suspense fallback={<Loading />}>
         <Scene />
       </Suspense>
       <div className="pointer-events-none absolute inset-0">
