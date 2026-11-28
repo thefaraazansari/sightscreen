@@ -14,6 +14,7 @@ import {
   MeshBasicMaterial,
   MeshStandardMaterial,
   Object3D,
+  RepeatWrapping,
   Shape,
   SphereGeometry,
 } from 'three'
@@ -27,9 +28,11 @@ import {
   buildStrip,
   buildTerrace,
   levelsOf,
-  STRIPS,
-} from '../data/layout'
-import { useStadium } from '../../../store/useStadium'
+  ptOnStand,
+  stadium,
+  STRIPS_OF,
+} from '../current'
+import { useStadium } from '../../store/useStadium'
 import { live } from './Environment'
 
 // every seat in a stand takes that stand's colour (the dot next to its name); the selected seat is bright yellow
@@ -117,67 +120,119 @@ const hash = (n: number) => {
   return ((x ^ (x >>> 16)) >>> 0) / 4294967296
 }
 
-/** Row of small, well-spaced Indian flags; `arc` is the strip length in metres. */
+/** Row of small, well-spaced flags (the stadium's own country: India's tricolour or the Australian flag); `arc` is the strip length in metres. */
 function flagTexture(arc: number) {
-  const W = 2048
   const H = 256
   const STRIP_H = 2.8 // metres
+  const n = Math.max(3, Math.round(arc / 7)) // one flag about every 7 m, well spaced
+  // one flag per tile, tiled along the strip, at the same pixels per metre both ways so the flag is never stretched
+  const W = Math.round((arc / n) * (H / STRIP_H))
   const c = document.createElement('canvas')
   c.width = W
   c.height = H
   const g = c.getContext('2d')!
   g.clearRect(0, 0, W, H)
-  const n = Math.max(3, Math.round(arc / 8)) // one flag about every 8 m, well spaced
-  const cell = W / n
-  const fh = H * 0.56 // flag height ≈ 1.5 m
-  const fw = fh * 1.5 * ((arc / W) ** -1 / (STRIP_H / H) ** -1) // keep a 3:2 flag despite different px/metre on each axis
-  const sx = (fw / fh) * (2 / 3) // horizontal squash that keeps the chakra round in the world
-  for (let k = 0; k < n; k++) {
+  const cell = W
+  const fh = H * 0.8 // flag height ≈ 2.2 m
+  const fw = fh * 1.5 // 3:2
+  const sx = 1
+  for (let k = 0; k < 1; k++) {
     const x = k * cell + (cell - fw) / 2
     const y = (H - fh) / 2
-    const band = fh / 3
-    g.fillStyle = '#ff9933' // India saffron, white and green
-    g.fillRect(x, y, fw, band)
-    g.fillStyle = '#ffffff'
-    g.fillRect(x, y + band, fw, band)
-    g.fillStyle = '#138808'
-    g.fillRect(x, y + 2 * band, fw, band)
-    // Ashoka chakra: navy wheel, 24 spokes, diameter three quarters of the white band
-    const cx = x + fw / 2
-    const cy = y + fh / 2
-    const r = band * 0.375
-    g.save()
-    g.translate(cx, cy)
-    g.scale(sx, 1)
-    g.strokeStyle = '#000080'
-    g.fillStyle = '#000080'
-    g.lineWidth = r * 0.14
-    g.beginPath()
-    g.arc(0, 0, r, 0, Math.PI * 2)
-    g.stroke()
-    g.beginPath()
-    g.arc(0, 0, r * 0.17, 0, Math.PI * 2)
-    g.fill()
-    g.lineWidth = r * 0.07
-    g.lineCap = 'round'
-    for (let s = 0; s < 24; s++) {
-      const a = (s / 24) * Math.PI * 2
+    if (stadium.flag === 'au') {
+      // the Australian flag, 2:1, centred in the 3:2 box: Union Jack canton, Commonwealth Star and Southern Cross
+      const jh = fh * 0.75
+      const jy = y + (fh - jh) / 2
+      g.save()
       g.beginPath()
-      g.moveTo(Math.cos(a) * r * 0.17, Math.sin(a) * r * 0.17)
-      g.lineTo(Math.cos(a) * r * 0.97, Math.sin(a) * r * 0.97)
+      g.rect(x, jy, fw, jh)
+      g.clip()
+      g.fillStyle = '#00247d'
+      g.fillRect(x, jy, fw, jh)
+      const cw = fw / 2
+      const ch = jh / 2
+      const dg = (w: number, c: string) => {
+        g.strokeStyle = c
+        g.lineWidth = w
+        g.beginPath()
+        g.moveTo(x, jy)
+        g.lineTo(x + cw, jy + ch)
+        g.moveTo(x + cw, jy)
+        g.lineTo(x, jy + ch)
+        g.stroke()
+      }
+      dg(ch * 0.2, '#ffffff')
+      dg(ch * 0.09, '#c8102e')
+      g.fillStyle = '#ffffff'
+      g.fillRect(x + cw * 0.4, jy, cw * 0.2, ch)
+      g.fillRect(x, jy + ch * 0.34, cw, ch * 0.32)
+      g.fillStyle = '#c8102e'
+      g.fillRect(x + cw * 0.44, jy, cw * 0.12, ch)
+      g.fillRect(x, jy + ch * 0.4, cw, ch * 0.2)
+      g.fillStyle = '#ffffff'
+      const star = (px: number, py: number, r: number, pts: number) => {
+        g.beginPath()
+        for (let k = 0; k < pts * 2; k++) {
+          const ang = (k * Math.PI) / pts - Math.PI / 2
+          const rr = k % 2 ? r * 0.4 : r
+          g.lineTo(px + Math.cos(ang) * rr, py + Math.sin(ang) * rr)
+        }
+        g.closePath()
+        g.fill()
+      }
+      star(x + fw * 0.25, jy + jh * 0.75, jh * 0.15, 7) // Commonwealth Star
+      star(x + fw * 0.775, jy + jh * 0.87, jh * 0.09, 7) // Southern Cross
+      star(x + fw * 0.65, jy + jh * 0.48, jh * 0.09, 7)
+      star(x + fw * 0.775, jy + jh * 0.12, jh * 0.09, 7)
+      star(x + fw * 0.9, jy + jh * 0.45, jh * 0.09, 7)
+      star(x + fw * 0.84, jy + jh * 0.58, jh * 0.05, 5)
+      g.restore()
+    } else {
+      const band = fh / 3
+      g.fillStyle = '#ff9933' // India saffron, white and green
+      g.fillRect(x, y, fw, band)
+      g.fillStyle = '#ffffff'
+      g.fillRect(x, y + band, fw, band)
+      g.fillStyle = '#138808'
+      g.fillRect(x, y + 2 * band, fw, band)
+      // Ashoka chakra: navy wheel, 24 spokes, diameter three quarters of the white band
+      const cx = x + fw / 2
+      const cy = y + fh / 2
+      const r = band * 0.375
+      g.save()
+      g.translate(cx, cy)
+      g.scale(sx, 1)
+      g.strokeStyle = '#000080'
+      g.fillStyle = '#000080'
+      g.lineWidth = r * 0.14
+      g.beginPath()
+      g.arc(0, 0, r, 0, Math.PI * 2)
       g.stroke()
-      // small bead where each spoke meets the rim
       g.beginPath()
-      g.arc(
-        Math.cos(a + Math.PI / 24) * r * 0.9,
-        Math.sin(a + Math.PI / 24) * r * 0.9,
-        r * 0.045,
-        0,
-        Math.PI * 2,
-      )
+      g.arc(0, 0, r * 0.17, 0, Math.PI * 2)
       g.fill()
+      g.lineWidth = r * 0.07
+      g.lineCap = 'round'
+      for (let s = 0; s < 24; s++) {
+        const a = (s / 24) * Math.PI * 2
+        g.beginPath()
+        g.moveTo(Math.cos(a) * r * 0.17, Math.sin(a) * r * 0.17)
+        g.lineTo(Math.cos(a) * r * 0.97, Math.sin(a) * r * 0.97)
+        g.stroke()
+        // small bead where each spoke meets the rim
+        g.beginPath()
+        g.arc(
+          Math.cos(a + Math.PI / 24) * r * 0.9,
+          Math.sin(a + Math.PI / 24) * r * 0.9,
+          r * 0.045,
+          0,
+          Math.PI * 2,
+        )
+        g.fill()
+      }
+      g.restore()
+
     }
-    g.restore()
     // soft folds of cloth across the flag
     const fold = g.createLinearGradient(x, 0, x + fw, 0)
     for (let q = 0; q <= 6; q++)
@@ -189,14 +244,17 @@ function flagTexture(arc: number) {
     g.strokeRect(x, y, fw, fh)
   }
   const t = new CanvasTexture(c)
-  t.anisotropy = 4
+  t.wrapS = RepeatWrapping
+  t.repeat.set(n, 1)
+  t.anisotropy = 8
   return t
 }
 
 /** Stand name lettering for the lower wall strip. */
-function nameTexture(name: string, accent: string) {
+function nameTexture(name: string, accent: string, arc: number) {
   const W = 2048
-  const H = 108
+  // the canvas has the strip's own proportions (2.8 m high, `arc` m long), so the lettering is never stretched
+  const H = Math.min(512, Math.max(48, Math.round((W * 2.8) / arc)))
   const c = document.createElement('canvas')
   c.width = W
   c.height = H
@@ -215,8 +273,8 @@ function nameTexture(name: string, accent: string) {
   g.fillText(text, W / 2, H / 2 + 2)
   const half = g.measureText(text).width / 2
   g.fillStyle = accent
-  g.fillRect(W / 2 - half - 150, H / 2 - 5, 110, 10)
-  g.fillRect(W / 2 + half + 40, H / 2 - 5, 110, 10)
+  g.fillRect(W / 2 - half - 150, H / 2 - H * 0.05, 110, H * 0.1)
+  g.fillRect(W / 2 + half + 40, H / 2 - H * 0.05, 110, H * 0.1)
   const t = new CanvasTexture(c)
   t.anisotropy = 4
   return t
@@ -264,13 +322,24 @@ function TierSeats({ i, tier, mat }: { i: number; tier: number; mat: MeshStandar
   useLayoutEffect(() => {
     const m = ref.current!
     const o = new Object3D()
+    // where the seats are packed closer than a seat is wide (a big crowd on a small bowl) each is made narrower, so
+    // they stay separate seats with a gap instead of merging into one long bench
+    const gaps: number[] = []
+    for (let k = 1; k < Math.min(count, 600); k++) {
+      const a = start + k
+      if (set.row[a] === set.row[a - 1] && set.block[a] === set.block[a - 1])
+        gaps.push(Math.hypot(set.x[a] - set.x[a - 1], set.z[a] - set.z[a - 1]))
+    }
+    gaps.sort((p, q) => p - q)
+    const spacing = gaps.length ? gaps[gaps.length >> 1] : 1
+    const narrow = spacing >= 0.5 ? 1 : (spacing * 0.92) / 0.48
     for (let k = 0; k < count; k++) {
       const g = start + k
       o.position.set(set.x[g], set.y[g], set.z[g])
       o.rotation.y = set.rot[g]
-      if (blockOnly < 0) o.scale.set(1, 1, 1)
+      if (blockOnly < 0) o.scale.set(narrow, 1, 1)
       else if (set.block[g] !== blockOnly) o.scale.setScalar(0.0001)
-      else o.scale.set(1.04, 1.3, 1.2) // a bit larger in the zoomed block view; still clear of the neighbours
+      else o.scale.set(1.04 * narrow, 1.3, 1.2) // a bit larger in the zoomed block view; still clear of the neighbours
       o.updateMatrix()
       m.setMatrixAt(k, o.matrix)
     }
@@ -384,9 +453,24 @@ export function StandView({ i }: { i: number }) {
   const terrace = useMemo(() => buildTerrace(stand), [stand])
   const roof = useMemo(() => (stand.roof ? buildRoof(stand) : null), [stand])
   const rim = useMemo(() => (stand.roof ? buildRim(stand) : null), [stand])
-  const strips = useMemo(() => [buildStrip(stand, 0), buildStrip(stand, 1)], [stand])
+  const strips = useMemo(
+    () => STRIPS_OF(i).map((_, k) => buildStrip(stand, k)),
+    [stand, i],
+  )
   // strip 0 is the lower banner (between levels 1 and 2): the stand's name; strip 1 is the top banner: flags
   const labelMats = useMemo(() => {
+    // length in metres of banner strip k along the stand, measured on the real curve
+    const stripArc = (k: number) => {
+      const d = (STRIPS_OF(i)[k] ?? STRIPS_OF(i)[0]).d - 0.1
+      let len = 0
+      let prev = ptOnStand(d, (stand.t0 * Math.PI) / 180)
+      for (let q = 1; q <= 40; q++) {
+        const p = ptOnStand(d, ((stand.t0 + ((stand.t1 - stand.t0) * q) / 40) * Math.PI) / 180)
+        len += Math.hypot(p[0] - prev[0], p[1] - prev[1])
+        prev = p
+      }
+      return len
+    }
     const opts = {
       transparent: true,
       depthWrite: false,
@@ -396,15 +480,15 @@ export function StandView({ i }: { i: number }) {
       polygonOffsetUnits: -4,
     }
     return [
-      new MeshBasicMaterial({ map: nameTexture(stand.name, stand.color), ...opts }),
+      new MeshBasicMaterial({ map: nameTexture(stand.name, stand.color, stripArc(0)), ...opts }),
       new MeshBasicMaterial({
-        map: flagTexture((((stand.t1 - stand.t0) * Math.PI) / 180) * (70 + STRIPS[1].d)),
+        map: flagTexture(stripArc(1)),
         toneMapped: false,
         ...opts,
       }),
     ]
-  }, [stand])
-  const masts = useMemo(() => (stand.roof ? buildMasts(stand) : null), [stand])
+  }, [stand, i])
+  const masts = useMemo(() => (stand.roof && stand.masts !== false ? buildMasts(stand) : null), [stand])
   const mats = useMemo(
     () => ({
       terrace: new MeshStandardMaterial({ vertexColors: true, side: DoubleSide, roughness: 0.9 }),

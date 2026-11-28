@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react'
-import { loadScene, preloadStadium, seatLabel, STANDS, zoomBy } from './stadiums/current'
+import { loadScene, preloadStadium, seatLabel, STANDS } from './stadiums/current'
+import { zoomBy } from './stadiums/shared/CameraRig'
 import { useStadium } from './store/useStadium'
 import { BookingLinks } from './ui/Booking'
 import { PanelToggle } from './ui/PanelToggle'
@@ -88,9 +89,13 @@ export default function App() {
       </Suspense>
       <div className="pointer-events-none absolute inset-0">
         <header className="absolute inset-x-0 top-0 flex items-center justify-between p-3 md:p-4">
-          <div className="glass pointer-events-auto rounded-full px-4 py-2 text-sm font-semibold tracking-tight">
+          <a
+            href={import.meta.env.BASE_URL}
+            title="Choose another stadium"
+            className="glass pointer-events-auto rounded-full px-4 py-2 text-sm font-semibold tracking-tight text-ink no-underline"
+          >
             Sight<span className="text-accent">Screen</span>
-          </div>
+          </a>
           <div className="pointer-events-auto">
             <TimeToggle />
           </div>

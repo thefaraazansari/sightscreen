@@ -2,8 +2,8 @@ import { CameraControls } from '@react-three/drei'
 import CC from 'camera-controls'
 import { useEffect, useRef } from 'react'
 import type { PerspectiveCamera } from 'three'
-import { blockView, seatEye, standView } from '../data/layout'
-import { useStadium } from '../../../store/useStadium'
+import { blockView, seatEye, stadium, standView } from '../current'
+import { useStadium } from '../../store/useStadium'
 
 const { ACTION } = CC
 
@@ -36,7 +36,7 @@ function moveShift(c: CC, to: number, animate: boolean) {
 let ctrl: CC | null = null
 let introDone = false
 /** how much closer the resting overview sits than the base (0, 320, 380) view */
-const OVERVIEW_ZOOM = 1.4
+const OVERVIEW_ZOOM = stadium.cameraZoom
 const OV_Y = 320 / OVERVIEW_ZOOM
 const OV_Z = 380 / OVERVIEW_ZOOM
 

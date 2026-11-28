@@ -3,6 +3,7 @@ import { useMemo, useRef } from 'react'
 import {
   AdditiveBlending,
   CanvasTexture,
+  SRGBColorSpace,
   Color,
   DirectionalLight,
   Fog,
@@ -16,9 +17,9 @@ import {
   BackSide,
   MathUtils,
 } from 'three'
-import { A, B } from '../data/layout'
-import { TIMES, type TimePreset } from '../../../data/times'
-import { useStadium } from '../../../store/useStadium'
+import { A, B, TOWERS as STADIUM_TOWERS } from '../current'
+import { TIMES, type TimePreset } from '../../data/times'
+import { useStadium } from '../../store/useStadium'
 
 /** Smoothly animated scene values, shared by lights, sky, ground and UI-facing highlight colour. */
 const mk = (p: TimePreset) => ({
@@ -91,15 +92,14 @@ export const glowTexture = (() => {
   return new CanvasTexture(c)
 })()
 
-const TOWERS = [30, 90, 150, 210, 270, 330].map((deg) => {
-  const t = (deg * Math.PI) / 180
-  return {
-    x: (A + 42) * Math.cos(t),
-    z: (B + 42) * Math.sin(t),
-    rotY: Math.atan2(-Math.cos(t), -Math.sin(t)),
-  }
-})
-const TOWER_H = 46
+/** Floodlight masts: the stadium's own list when it has one, else a ring of six towers around the bowl. */
+const TOWERS: { x: number; z: number; h: number; style?: 'white'; rotY: number }[] = (
+  STADIUM_TOWERS ??
+  [30, 90, 150, 210, 270, 330].map((deg) => {
+    const t = (deg * Math.PI) / 180
+    return { x: (A + 42) * Math.cos(t), z: (B + 42) * Math.sin(t), h: 46, style: undefined as 'white' | undefined }
+  })
+).map((t) => ({ ...t, rotY: Math.atan2(-t.x, -t.z) }))
 
 const lampPanelTex = (() => {
   const c = document.createElement('canvas')
@@ -116,6 +116,28 @@ const lampPanelTex = (() => {
       g.fill()
     }
   return new CanvasTexture(c)
+})()
+
+/** The lamp bank of a tall white tower: a dark frame holding a grid of bright lamps. */
+const lampGridTex = (() => {
+  const c = document.createElement('canvas')
+  c.width = 128
+  c.height = 128
+  const g = c.getContext('2d')!
+  g.fillStyle = '#3a3f48'
+  g.fillRect(0, 0, 128, 128)
+  for (let x = 0; x < 8; x++)
+    for (let y = 0; y < 9; y++) {
+      g.fillStyle = '#9aa1ad'
+      g.fillRect(6 + x * 14.5, 5 + y * 13, 12, 11)
+      g.fillStyle = '#ffffff'
+      g.beginPath()
+      g.arc(12 + x * 14.5, 10.5 + y * 13, 4.2, 0, 7)
+      g.fill()
+    }
+  const t = new CanvasTexture(c)
+  t.colorSpace = SRGBColorSpace
+  return t
 })()
 
 export function Environment() {
@@ -209,6 +231,10 @@ function Floodlights() {
       }),
     [],
   )
+  const lamps = useMemo(
+    () => new MeshStandardMaterial({ color: '#ffffff', map: lampGridTex, emissive: '#fff2cf', emissiveMap: lampGridTex, emissiveIntensity: 0.1 }),
+    [],
+  )
   const casing = useMemo(() => new MeshStandardMaterial({ color: '#6f7683', roughness: 0.7 }), [])
   const faces = useMemo(() => [casing, casing, casing, casing, panel, casing], [casing, panel])
   useFrame(() => {
@@ -216,20 +242,38 @@ function Floodlights() {
     const glow = Math.min(1, live.flood * 1.1 + live.sunGlow * 0.08)
     glows.current.forEach((g) => g && (g.opacity = glow))
     panel.emissiveIntensity = 0.15 + live.flood * 4
+    lamps.emissiveIntensity = 0.1 + live.flood * 3
   })
   return (
     <>
       {TOWERS.map((t, i) => (
         <group key={i} position={[t.x, 0, t.z]} rotation-y={t.rotY}>
-          <mesh position-y={TOWER_H / 2} visible={!hide}>
-            <cylinderGeometry args={[0.6, 1.1, TOWER_H, 8]} />
-            <meshStandardMaterial color="#8a93a3" roughness={0.7} />
+          <mesh position-y={t.h / 2} visible={!hide}>
+            <cylinderGeometry args={t.style === 'white' ? [0.5, 1.1, t.h, 12] : [0.6, 1.1, t.h, 8]} />
+            <meshStandardMaterial color={t.style === 'white' ? '#f1f3f6' : '#8a93a3'} roughness={0.7} />
           </mesh>
-          <mesh position={[0, TOWER_H + 2, 0.4]} material={faces} visible={!hide}>
-            <boxGeometry args={[11, 6, 1]} />
-          </mesh>
+          {t.style === 'white' ? (
+            // tall white pole carrying one big square bank of lamps, tilted slightly down towards the ground
+            <group position={[0, t.h + 5, 0]} rotation-x={0.12} visible={!hide}>
+              <mesh position={[0, 0, -0.5]}>
+                <boxGeometry args={[15, 14, 1.2]} />
+                <meshStandardMaterial color="#e4e7ec" roughness={0.6} />
+              </mesh>
+              <mesh position={[0, 0, 0.3]} material={[casing, casing, casing, casing, lamps, casing]}>
+                <boxGeometry args={[13.6, 13.2, 0.6]} />
+              </mesh>
+              <mesh position={[0, -8.5, -0.5]}>
+                <boxGeometry args={[3, 3, 2]} />
+                <meshStandardMaterial color="#e4e7ec" roughness={0.6} />
+              </mesh>
+            </group>
+          ) : (
+            <mesh position={[0, t.h + 2, 0.4]} material={faces} visible={!hide}>
+              <boxGeometry args={[11, 6, 1]} />
+            </mesh>
+          )}
           {/* glow is a one-sided plane facing the stadium, so nothing shines out of the back */}
-          <mesh position={[0, TOWER_H + 2, 1.6]} visible={!hide}>
+          <mesh position={[0, t.h + (t.style === 'white' ? 5 : 2), 1.6]} visible={!hide}>
             <planeGeometry args={[38, 38]} />
             <meshBasicMaterial
               ref={(m) => void (glows.current[i] = m)}
@@ -243,7 +287,7 @@ function Floodlights() {
           </mesh>
           <spotLight
             ref={(l) => void (lights.current[i] = l)}
-            position={[0, TOWER_H + 2, 1]}
+            position={[0, t.h + 2, 1]}
             color="#fff3d6"
             angle={0.5}
             distance={300}

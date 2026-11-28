@@ -13,8 +13,18 @@ import {
   PointsMaterial,
 } from 'three'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
-import type { Piece } from './City'
 import { glowTexture, live } from './Environment'
+
+/** One stretch of road handed to the traffic: its centre line, width and one-way flag. */
+export interface Piece {
+  c: string
+  p: number[]
+  /** one-way carriageway (motorway ways are drawn one per direction) */
+  ow: boolean
+  w: number
+  /** within reach of the sea front (busier traffic) */
+  m: boolean
+}
 
 type Kind = 'car' | 'taxi' | 'bus' | 'auto'
 const KINDS: Kind[] = ['car', 'taxi', 'bus', 'auto']
@@ -296,7 +306,9 @@ function nextLane(l: Lane, rnd: () => number): Lane | null {
   return l.succ.length ? l.succ[Math.floor(rnd() * l.succ.length)] : (l.pair ?? null)
 }
 
-export function Traffic({ pieces }: { pieces: Piece[] }) {
+/** `autos: false` leaves out the Indian black-and-yellow taxis and auto-rickshaws, and any black or yellow car. */
+/** `headlights: false` leaves out the glowing headlight points at night. */
+export function Traffic({ pieces, autos = true, headlights = true }: { pieces: Piece[]; autos?: boolean; headlights?: boolean }) {
   const { vehicles, counts, lanes } = useMemo(() => {
     const r = rng(7)
     const vs: Vehicle[] = []
@@ -333,7 +345,7 @@ export function Traffic({ pieces }: { pieces: Piece[] }) {
         const n = Math.max(1, Math.floor(lane.len / sp))
         for (let i = 0; i < n && vs.length < MAX_VEHICLES; i++) {
           const q = r()
-          const kind: Kind = q < 0.72 ? 'car' : q < 0.86 ? 'taxi' : q < 0.89 ? 'bus' : 'auto' // mostly cars, only a few buses
+          const kind: Kind = q < 0.72 ? 'car' : q < 0.86 ? (autos ? 'taxi' : 'car') : q < 0.89 ? 'bus' : autos ? 'auto' : 'car' // mostly cars, only a few buses
           const [lo, hi] = SPEED[kind]
           const speed = lo + r() * (hi - lo)
           const v: Vehicle = {
@@ -390,7 +402,7 @@ export function Traffic({ pieces }: { pieces: Piece[] }) {
       } else addToGrid(g, u, v)
     }
     return { vehicles: vs, counts, lanes: lanesAll }
-  }, [pieces])
+  }, [pieces, autos])
 
   const meshes = useRef<Record<Kind, InstancedMesh | null>>({
     car: null,
@@ -451,8 +463,9 @@ export function Traffic({ pieces }: { pieces: Piece[] }) {
       if (!m || tinted.current.has(m)) continue
       tinted.current.add(m)
       const r = rng(11)
+      const pal = autos ? CAR_COLORS : CAR_COLORS.filter((c) => !['f2b705', '2b2f36'].includes(c.getHexString()))
       for (const v of vehicles) {
-        const c = TINT[v.kind] ?? CAR_COLORS[Math.floor(r() * CAR_COLORS.length)]
+        const c = TINT[v.kind] ?? pal[Math.floor(r() * pal.length)]
         if (v.kind === k) m.setColorAt(v.slot, c)
       }
       m.instanceColor!.needsUpdate = true
@@ -694,7 +707,7 @@ export function Traffic({ pieces }: { pieces: Piece[] }) {
     const night = Math.min(1, Math.max(0, (live.flood - 0.1) / 0.5))
     carSelf.value = night * 0.3
     mats.glow.opacity = night * 0.85
-    if (lights.current) lights.current.visible = night > 0.02
+    if (lights.current) lights.current.visible = headlights && night > 0.02
   })
 
   if (!vehicles.length) return null
@@ -712,6 +725,7 @@ export function Traffic({ pieces }: { pieces: Piece[] }) {
         ) : null,
       )}
       <points
+        visible={headlights}
         ref={lights}
         geometry={lightGeo}
         material={mats.glow}

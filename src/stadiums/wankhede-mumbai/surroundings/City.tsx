@@ -17,12 +17,12 @@ import {
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { useStadium } from '../../../store/useStadium'
 import { A, OUTER } from '../data/layout'
-import { glowTexture, live } from './Environment'
+import { glowTexture, live } from '../../shared/Environment'
 import { distToChain, coastChain, pushedOut, seawardNormals } from './coast'
 import { Marine, PUSH } from './Marine'
 import { makeTracks, Railway } from './Railway'
 import { fillerBuildings, isInfillPark } from './fill'
-import { Traffic } from './Traffic'
+import { Traffic, type Piece } from '../../shared/Traffic'
 
 // OpenStreetMap-derived scene (see scripts/build_osm.py): buildings, roads, parks, sea.
 interface Osm {
@@ -77,15 +77,6 @@ const ROAD_C: Record<string, string> = {
   pedestrian: '#8d8577',
 }
 
-export interface Piece {
-  c: string
-  p: number[]
-  /** one-way carriageway (motorway ways are drawn one per direction) */
-  ow: boolean
-  w: number
-  /** within reach of the sea front (Marine Drive) */
-  m: boolean
-}
 
 /** Map features are kept out of a thin forecourt around the bowl so nothing merges into the stands. */
 const FOOT = A + OUTER + 2

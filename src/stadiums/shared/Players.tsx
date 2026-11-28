@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { PITCH_BEARING } from '../current'
 import { BoxGeometry, CylinderGeometry, MeshStandardMaterial, SphereGeometry } from 'three'
 
 /**
@@ -191,8 +192,8 @@ export function Players() {
   )
   const striker: [number, number] = [0.05, 9.1]
   return (
-    // the whole scene is turned half a circle so the bowling end is the opposite one
-    <group rotation-y={Math.PI}>
+    // the pitch lies north-south and the bowling end is the opposite one; turn the lot to the ground's own pitch bearing
+    <group rotation-y={Math.PI - (PITCH_BEARING * Math.PI) / 180}>
       {fielders.map((p, i) => (
         <Person key={i} at={p} look={striker} kit={YELLOW} />
       ))}

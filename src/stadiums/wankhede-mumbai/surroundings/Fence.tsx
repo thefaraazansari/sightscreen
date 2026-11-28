@@ -15,7 +15,7 @@ import {
   SRGBColorSpace,
 } from 'three'
 import { A, B } from '../data/layout'
-import { live } from './Environment'
+import { live } from '../../shared/Environment'
 import { ROPE } from './Ground'
 
 /** Boundary safety cage: posts, a top rail and wire mesh running around the edge of the ground, between it and the stands. */

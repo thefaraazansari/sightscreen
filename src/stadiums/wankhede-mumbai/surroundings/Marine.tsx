@@ -16,7 +16,7 @@ import {
 } from 'three'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { at, pushK, seawardNormals, type P } from './coast'
-import { live } from './Environment'
+import { live } from '../../shared/Environment'
 
 function ribbon(line: P[], widthOf: number | ((i: number) => number), y: number) {
   const pos: number[] = []

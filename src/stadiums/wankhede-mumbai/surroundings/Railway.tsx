@@ -20,7 +20,7 @@ import {
   Object3D,
 } from 'three'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
-import { glowTexture, live } from './Environment'
+import { glowTexture, live } from '../../shared/Environment'
 
 type Pt = [number, number]
 

@@ -1,13 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="9 -9 64 71">
   <defs>
-    <radialGradient id="b" cx="36%" cy="30%" r="78%"><stop offset="0" stop-color="#d4202b"/><stop offset=".55" stop-color="#a30f1a"/><stop offset="1" stop-color="#5e060c"/></radialGradient>
-    <clipPath id="c"><circle cx="32" cy="32" r="29"/></clipPath>
+    <!-- round wooden stump: dark edges, light centre -->
+    <linearGradient id="s" x1="0" x2="1">
+      <stop offset="0" stop-color="#8a5a2b"/>
+      <stop offset=".3" stop-color="#e3b97a"/>
+      <stop offset=".55" stop-color="#f0cf97"/>
+      <stop offset="1" stop-color="#9a6a37"/>
+    </linearGradient>
+    <radialGradient id="r" cx=".35" cy=".3" r=".8">
+      <stop offset="0" stop-color="#e5323a"/>
+      <stop offset=".55" stop-color="#b3121c"/>
+      <stop offset="1" stop-color="#62060c"/>
+    </radialGradient>
+    <linearGradient id="b" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f3d9a6"/>
+      <stop offset=".6" stop-color="#d9a965"/>
+      <stop offset="1" stop-color="#a97a42"/>
+    </linearGradient>
   </defs>
-  <circle cx="32" cy="32" r="29" fill="url(#b)"/>
-  <g clip-path="url(#c)" fill="none" stroke-linecap="round">
-    <path d="M5 27Q32 50 59 27" stroke="#3a0408" stroke-width="2.4"/>
-    <path d="M5 27Q32 50 59 27" stroke="#e9d8b4" stroke-width="0.7"/>
-    <path d="M10.2 25.4L9.1 26.9M9.6 26.2L8.5 27.7M6.4 30.3L5.3 31.8M5.8 31.1L4.7 32.6M12.5 27.1L11.5 28.6M11.9 27.9L10.9 29.4M8.9 32.2L7.9 33.7M8.4 33.0L7.3 34.5M14.7 28.6L13.8 30.1M14.2 29.4L13.3 31.0M11.5 33.9L10.5 35.4M10.9 34.7L10.0 36.2M17.0 29.9L16.1 31.5M16.5 30.8L15.6 32.3M14.0 35.3L13.2 36.9M13.5 36.2L12.7 37.8M19.2 31.0L18.4 32.6M18.7 31.9L18.0 33.5M16.6 36.6L15.8 38.3M16.1 37.5L15.4 39.2M21.4 31.9L20.7 33.6M21.0 32.9L20.3 34.5M19.1 37.7L18.5 39.4M18.8 38.6L18.1 40.3M23.5 32.7L23.0 34.4M23.2 33.6L22.7 35.4M21.7 38.6L21.1 40.3M21.4 39.6L20.9 41.3M25.7 33.3L25.2 35.0M25.4 34.2L25.0 36.0M24.3 39.3L23.8 41.1M24.0 40.3L23.6 42.0M27.8 33.7L27.5 35.5M27.6 34.7L27.4 36.4M26.8 39.8L26.6 41.6M26.7 40.8L26.4 42.6M29.9 33.9L29.8 35.7M29.8 34.9L29.7 36.7M29.4 40.1L29.3 41.9M29.3 41.1L29.2 42.9M32.0 34.0L32.0 35.8M32.0 35.0L32.0 36.8M32.0 40.2L32.0 42.0M32.0 41.2L32.0 43.0M34.1 33.9L34.2 35.7M34.2 34.9L34.3 36.7M34.6 40.1L34.7 41.9M34.7 41.1L34.8 42.9M36.2 33.7L36.5 35.5M36.4 34.7L36.6 36.4M37.2 39.8L37.4 41.6M37.3 40.8L37.6 42.6M38.3 33.3L38.8 35.0M38.6 34.2L39.0 36.0M39.7 39.3L40.2 41.1M40.0 40.3L40.4 42.0M40.5 32.7L41.0 34.4M40.8 33.6L41.3 35.4M42.3 38.6L42.9 40.3M42.6 39.6L43.1 41.3M42.6 31.9L43.3 33.6M43.0 32.9L43.7 34.5M44.9 37.7L45.5 39.4M45.2 38.6L45.9 40.3M44.8 31.0L45.6 32.6M45.3 31.9L46.0 33.5M47.4 36.6L48.2 38.3M47.9 37.5L48.6 39.2M47.0 29.9L47.9 31.5M47.5 30.8L48.4 32.3M50.0 35.3L50.8 36.9M50.5 36.2L51.3 37.8M49.3 28.6L50.2 30.1M49.8 29.4L50.7 31.0M52.5 33.9L53.5 35.4M53.1 34.7L54.0 36.2M51.5 27.1L52.5 28.6M52.1 27.9L53.1 29.4M55.1 32.2L56.1 33.7M55.6 33.0L56.7 34.5M53.8 25.4L54.9 26.9M54.4 26.2L55.5 27.7M57.6 30.3L58.7 31.8M58.2 31.1L59.3 32.6" stroke="#f1e4c4" stroke-width="0.9"/>
+  <g id="stump">
+    <path id="st" d="M13 60V18Q13 14 17 14Q21 14 21 18V60Z" fill="url(#s)"/>
+    <path d="M15.2 58V19M17.4 58V18.5M19.2 58V19.5" stroke="#8a5a2b" stroke-opacity=".35" stroke-width=".5" fill="none"/>
   </g>
-  <ellipse cx="22" cy="17" rx="9" ry="5" fill="#fff" opacity=".18" transform="rotate(-30 22 17)"/>
+  <use href="#stump" x="15"/>
+  <use href="#stump" x="30"/>
+  <!-- bails knocked into the air -->
+  <g transform="rotate(-32 24 6)">
+    <rect x="15.5" y="4.3" width="17" height="3.4" rx="1.7" fill="url(#b)"/>
+    <path d="M17 6H31" stroke="#8a5a2b" stroke-opacity=".3" stroke-width=".5"/>
+  </g>
+  <g transform="rotate(26 43 0)">
+    <rect x="34.5" y="-1.7" width="17" height="3.4" rx="1.7" fill="url(#b)"/>
+    <path d="M36 0H50" stroke="#8a5a2b" stroke-opacity=".3" stroke-width=".5"/>
+  </g>
+  <!-- the ball that hit them -->
+  <circle cx="65.5" cy="40" r="6.5" fill="url(#r)"/>
+  <path d="M60 36.5Q65 43 71 36.5" fill="none" stroke="#f1e4c4" stroke-width=".9" stroke-dasharray="1.2 1"/>
+  <ellipse cx="63.3" cy="37" rx="2.2" ry="1.3" fill="#fff" opacity=".28" transform="rotate(-30 63.3 37)"/>
 </svg>

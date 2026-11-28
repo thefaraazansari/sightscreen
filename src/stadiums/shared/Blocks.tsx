@@ -19,8 +19,8 @@ import {
   buildBlockPatch,
   levelAnchor,
   levelsOf,
-} from '../data/layout'
-import { useStadium } from '../../../store/useStadium'
+} from '../current'
+import { useStadium } from '../../store/useStadium'
 
 /** One whole block on one floor: hover lights up the entire block, click zooms in on it. */
 function BlockPatch({ stand, tier, block }: { stand: number; tier: number; block: number }) {

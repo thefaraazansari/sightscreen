@@ -1,13 +1,12 @@
 import { Canvas } from '@react-three/fiber'
-import { STANDS } from '../data/layout'
-import { BlockPickers, StandLabels } from './Blocks'
-import { City } from './City'
-import { CameraRig } from './CameraRig'
-import { Environment } from './Environment'
-import { Fence } from './Fence'
-import { Ground } from './Ground'
-import { Players } from './Players'
-import { StandView } from './Stand'
+import { STANDS } from './data/layout'
+import { BlockPickers, StandLabels } from '../shared/Blocks'
+import { City } from './surroundings/City'
+import { CameraRig } from '../shared/CameraRig'
+import { Environment } from '../shared/Environment'
+import { Ground } from './surroundings/Ground'
+import { Players } from '../shared/Players'
+import { StandView } from '../shared/Stand'
 
 export default function Scene() {
   return (
@@ -19,7 +18,6 @@ export default function Scene() {
       <Environment />
       <Ground />
       <Players />
-      <Fence />
       <City />
       {STANDS.map((s) => (
         <StandView key={s.id} i={s.id} />
