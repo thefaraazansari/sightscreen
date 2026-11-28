@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://thefaraazansari.github.io/sightscreen/sitemap.xml

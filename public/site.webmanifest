@@ -1,0 +1,12 @@
+{
+  "name": "SightScreen",
+  "short_name": "SightScreen",
+  "description": "Preview the view from your seat in 3D before you book cricket tickets.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#01030c",
+  "theme_color": "#01030c",
+  "lang": "en",
+  "icons": [{ "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

@@ -5,11 +5,57 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SightScreen</title>
+    <meta name="description" content="Pick a stand, block or seat in a 3D model of Wankhede Stadium or the MCG and see the pitch from there, by day, evening or night. Free, no sign-up." />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="application-name" content="SightScreen" />
+    <link rel="canonical" href="https://thefaraazansari.github.io/sightscreen/" />
+
+    <!-- Link previews: WhatsApp, Teams, Slack, LinkedIn, Facebook and others read these.
+         URLs are absolute on purpose: preview crawlers need them.
+         Text in the image sits inside the middle 630px, so WhatsApp's centre crop keeps it.
+         Changing the image? Rename the file (og-image-v2.png): apps cache previews by URL. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="SightScreen" />
+    <meta property="og:title" content="SightScreen" />
+    <meta property="og:description" content="Preview the view from any seat in a 3D cricket stadium before you book tickets." />
+    <meta property="og:url" content="https://thefaraazansari.github.io/sightscreen/" />
+    <meta property="og:image" content="https://thefaraazansari.github.io/sightscreen/og-image-v1.png" />
+    <meta property="og:image:secure_url" content="https://thefaraazansari.github.io/sightscreen/og-image-v1.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="SightScreen: a 3D cricket stadium seen from above at night" />
+    <meta property="og:locale" content="en_US" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="SightScreen" />
+    <meta name="twitter:description" content="Preview the view from any seat in a 3D cricket stadium before you book tickets." />
+    <meta name="twitter:image" content="https://thefaraazansari.github.io/sightscreen/og-image-v1.png" />
+    <meta name="twitter:image:alt" content="SightScreen: a 3D cricket stadium seen from above at night" />
+
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#01030c" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "SightScreen",
+        "url": "https://thefaraazansari.github.io/sightscreen/",
+        "description": "Preview the view from any seat in a 3D cricket stadium before you book tickets.",
+        "applicationCategory": "EntertainmentApplication",
+        "operatingSystem": "Any (web browser)",
+        "browserRequirements": "Requires JavaScript and WebGL",
+        "inLanguage": "en",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Montserrat:wght@700&display=swap" rel="stylesheet" />
   </head>
   <body>
+    <noscript>SightScreen needs JavaScript. Turn it on to preview the view from your seat in 3D.</noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
