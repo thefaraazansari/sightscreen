@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { SEATS, STANDS, TIER_NAMES, blockName, seatLabel } from '../stadiums/current'
+import { SEATS, STANDS, TIER_NAMES, blockName, seatLabel, stadium } from '../stadiums/current'
 import { useStadium } from '../store/useStadium'
 
 export function Tooltip() {
@@ -52,7 +52,7 @@ export function Tooltip() {
     body = (
       <>
         <div className="font-semibold">{STANDS[stand].name}</div>
-        <div className="text-mute">{(f[0] + f[1] + f[2]).toLocaleString('en-IN')} seats</div>
+        <div className="text-mute">{(f[0] + f[1] + f[2]).toLocaleString(stadium.numberLocale)} seats</div>
       </>
     )
   }

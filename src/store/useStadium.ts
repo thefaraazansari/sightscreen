@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import type { TimeOfDay } from '../data/times'
+import { stadiumSlug as SLUG } from '../stadiums/catalog'
 
 export type Mode = 'overview' | 'stand' | 'seat'
 export interface BlockRef {
@@ -47,18 +48,17 @@ interface State {
   back: () => void
 }
 
-const SLUG = 'wankhede-stadium'
-const TIMES_LIST: TimeOfDay[] = ['day', 'evening', 'night']
+const TIMES_LIST: Set<TimeOfDay> = new Set(['day', 'evening', 'night'])
 /** the URL carries the stadium and the view: ?stadium=wankhede-stadium&view=night */
 const urlTime = (): TimeOfDay => {
   const t = new URLSearchParams(location.search).get('view') as TimeOfDay
-  return TIMES_LIST.includes(t) ? t : 'day'
+  return TIMES_LIST.has(t) ? t : 'day'
 }
 const syncUrl = (t: TimeOfDay) => {
   const q = new URLSearchParams(location.search)
   q.set('stadium', SLUG)
   q.set('view', t)
-  history.replaceState(null, '', `/?${q}${location.hash}`)
+  history.replaceState(null, '', `${location.pathname}?${q}${location.hash}`)
 }
 
 const same = (a: SeatRef | null, b: SeatRef | null) =>
